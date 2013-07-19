@@ -1,10 +1,10 @@
 #! /usr/bin/python
 
 """
-Class used to construct the taxonomic tree. Use number is ID.
+Class used to construct the taxonomic tree. Use number ID.
 """
 
-class Taxon(object):
+class Taxon:
 	def __init__(self, taxonid, parent="", kid=""):
 		self.ID==taxonid;
 		self.Parent="";
