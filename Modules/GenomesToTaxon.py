@@ -14,19 +14,21 @@ class GenomesToTaxon():
 	def __init__(self):
 		self.Converter={};
 
-	def prepareConverter(self, fileIn, fileOut):
+	def prepareConverter(self, fileIn):
 		FileUtility.isValid(fileIn);
 		sys.stderr.write("counting lines to prepare converter\n");
-		numOfLines=FileUtility.coutLines(file);
+		numOfLines=FileUtility.countLines(fileIn);
 		sys.stderr.write(str(numOfLines)+" to read\n");
 		readed=0;
-		for line in open(file):
+		for line in open(fileIn):
 			genome=int(line.split()[0]);
 			taxon=int(line.split()[1]);
 			self.Converter[genome]=taxon;
 			readed+=1;
 			if(readed%100000==0):
 				sys.stderr.write(str(readed)+" lines readed on "+str(numOfLines)+"\n");
+
+	def dumpConverter(self, fileOut):
 		sys.stderr.write("Writing converter to file\n");
 		f=open(fileOut,"wb");
 		pickle.dump(self.Converter,f, protocol=2);

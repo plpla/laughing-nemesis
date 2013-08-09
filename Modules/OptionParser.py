@@ -16,7 +16,9 @@ class OptionParser():
 		self.subparsers=self.Parser.add_subparsers(help='sub-command help');
 		#prepare
 		self.parser_prepare=self.subparsers.add_parser('prepare', help='Prepare data for the construction fo the tree');
-		self.parser_prepare.add_argument('-f', type=str, help='The GenomeToTaxon file. 2 Columns.', required=True);
+		self.parser_prepare.add_argument('-t', type=str, help='The TreeOfLife-Edges.tsv file', required=True);
+		self.parser_prepare.add_argument('-n', type=str, help='The Taxon-Names.tsv file', required=True);
+		self.parser_prepare.add_argument('-f', type=str, help='The GenomeToTaxon.tsv file', required=True);
 		#run
 		self.parser_run=self.subparsers.add_parser('run', help='Find the last common ancester');
 		self.parser_run.add_argument('-d', type=str, help='The biological abundance directory', required=True);
@@ -28,7 +30,8 @@ class OptionParser():
 	def getArguments(self):
 		return(self.Arguments);	
 		
-
+	def getParser(self):
+		return(self.Parser);
 if __name__=="__main__":
 	parser=OptionParser(sys.argv[1:]);
 	arg=parser.getArguments();

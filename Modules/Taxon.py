@@ -107,10 +107,12 @@ class TaxonomicTree():
 			Error.error("Logic error: required node does not exist");
 	
 	def dumpTree(self, file):
+		sys.stderr.write("Dumping tree to disk\n");
 		f=open(file, 'wb');
 		pickle.dump(self.getNodes(), f, protocol=2);
 
 	def loadTree(self, file):
+		sys.stderr.write("Loading tree\n");
 		f=open(file, 'rb');
 		self.Nodes=pickle.load(f)
 	
@@ -142,6 +144,7 @@ class TaxonomicTree():
 		return i
 				
 	def addTaxonName(self, file):
+		sys.stderr.write("Adding taxon name to tree\n");
 		FileUtility.isValid(file);
 		for line in open(file):
 			id=int(line.split('\t')[0]);
@@ -173,8 +176,8 @@ class TaxonomicTree():
 				else:
 					Error.error("Logic error: tree is not valid because this parent does not exist:"+str(self.Nodes[i].getParents()));
 			else:
-				sys.stderr.write("Found a node without parents\n")
-				root.append(self.Nodes[i].getParents());
+				sys.stderr.write("Found a root\n")
+				root.append(self.Nodes[i]);
 			for k in self.Nodes[i].getKids():
 				if(self.nodeExist(k)):
 					pass;
@@ -184,50 +187,52 @@ class TaxonomicTree():
 			checked+=1;
 			if(checked%50000==0):
 				sys.stderr.write(str(checked)+" nodes checked\n");
-		for b in root:
-			sys.stderr.write(str(b)+"\n");
+		if(len(root)>1):
+			Error.warning("There is more than one root\n");
 		sys.stderr.write("Taxonomic tree is considered valid\n");
 
 
-def readTreeOfLife(file):
-	FileUtility.isValid(file);
-	tree=TaxonomicTree();
-	numOfLine=0;
-	for line in open(file):
-		parent=int(line.split()[0]);
-                kid=int(line.split()[1]);
-                if(tree.nodeExist(parent)):
-                        if(tree.nodeExist(kid)):
-                                tree.getNode(parent).addKid(kid);
-				tree.getNode(kid).setParent(parent);
-                        else:   
-                                newNode=Taxon(kid);
-				tree.addNode(newNode);
-                                tree.getNode(parent).addKid(kid);
-                                tree.getNode(kid).setParent(parent);
-                else:   
-                        if(tree.nodeExist(kid)):
-                                newNode=Taxon(parent);
-                                tree.addNode(parent);
-                                tree.getNode(kid).setParent(parent);
-                                tree.getNode(parent).addKid(kid);
-                        else:
-				newKid=Taxon(kid);
-				newParent=Taxon(parent);
-				newKid.setParent(parent);
-				newParent.addKid(kid);
-				tree.addNode(newKid);
-				tree.addNode(newParent);
-		numOfLine+=1;
-		if(numOfLine%100000==0):
-			sys.stderr.write(str(numOfLine)+" lines read\n");
-	return(tree);
+	def readTreeOfLife(self, file):
+		FileUtility.isValid(file);
+		toBeRead=FileUtility.countLines(file);
+		sys.stderr.write(str(toBeRead)+" lines to read to construct tree\n");
+		numOfLine=0;
+		for line in open(file):
+			parent=int(line.split()[0]);
+			kid=int(line.split()[1]);
+			if(self.nodeExist(parent)):
+				if(self.nodeExist(kid)):
+                                		self.getNode(parent).addKid(kid);
+						self.getNode(kid).setParent(parent);
+                        	else:   
+                                	newNode=Taxon(kid);
+					self.addNode(newNode);
+                                	self.getNode(parent).addKid(kid);
+                                	self.getNode(kid).setParent(parent);
+                	else:   
+                        	if(self.nodeExist(kid)):
+                                	newNode=Taxon(parent);
+                                	self.addNode(parent);
+                                	self.getNode(kid).setParent(parent);
+                                	self.getNode(parent).addKid(kid);
+                       		else:
+					newKid=Taxon(kid);
+					newParent=Taxon(parent);
+					newKid.setParent(parent);
+					newParent.addKid(kid);
+					self.addNode(newKid);
+					self.addNode(newParent);
+			numOfLine+=1;
+			if(numOfLine%100000==0):
+				sys.stderr.write(str(numOfLine)+" lines read\n");
+		sys.stderr.write("Tree base constructed\n");
 
 #test main	
 if __name__=="__main__":
 	files=sys.argv[1];
 	sys.stderr.write("Loading taxonomic tree\n")
-	tree=readTreeOfLife(files);
+	tree=TaxonomicTree();
+	tree.readTreeOfLife(files);
 	sys.stderr.write("Taxonomic tree is loaded\n");
 	sys.stderr.write("Adding taxon name to tree\n");
 	tree.addTaxonName(sys.argv[2]);

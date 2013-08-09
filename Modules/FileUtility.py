@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys;
-
+import Error
 
 def isValid(file):
 	valid=1;
@@ -12,7 +12,7 @@ def isValid(file):
 		valid=0;
 	return valid;
 
-def coutLines(file):
+def countLines(file):
 	lines=0;
 	try:
 		for i in open(file):
@@ -20,5 +20,5 @@ def coutLines(file):
 	except:
 		lines=0;
 	if lines==0:
-		Error.error("File "+file+" is empty");
+		Error.error("File "+str(file)+" is empty");
 	return lines;
