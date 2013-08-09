@@ -10,7 +10,10 @@ import logging	#for debuging
 import Error
 import FileUtility
 import sys
-import cPickle as pickle
+try:
+	import cPickle as pickle
+except:
+	import pickle
 class TaxonName():
 	def __init__(self):
 		self.Name="";
