@@ -62,7 +62,7 @@ if __name__=="__main__":
 	if (len(sys.argv)==2):
 		file=sys.argv[1];
 		converter=GenomesToTaxon();
-		converter.prepareConverter(file, "Converter.bin");
+		converter.prepareConverter(file, "Data/Converter.bin");
 	newConverter=GenomesToTaxon();
-	newConverter.loadConverter("Converter.bin");
+	newConverter.loadConverter("Data/Converter.bin");
 

@@ -10,7 +10,7 @@ import logging	#for debuging
 import Error
 import FileUtility
 import sys
-
+import cPickle as pickle
 class TaxonName():
 	def __init__(self):
 		self.Name="";
@@ -102,6 +102,15 @@ class TaxonomicTree():
 			return self.Nodes[nodeId];
 		else:
 			Error.error("Logic error: required node does not exist");
+	
+	def dumpTree(self, file):
+		f=open(file, 'wb');
+		pickle.dump(self.getNodes(), f, protocol=2);
+
+	def loadTree(self, file):
+		f=open(file, 'rb');
+		self.Nodes=pickle.load(f)
+	
 	#return the last common ancerstor in the tree. If it is not found, return -1 and print a warning
 	def findLCA(self, node1, node2):
 		if(self.nodeExist(node1) and self.nodeExist(node2)):
@@ -217,9 +226,15 @@ if __name__=="__main__":
 	sys.stderr.write("Loading taxonomic tree\n")
 	tree=readTreeOfLife(files);
 	sys.stderr.write("Taxonomic tree is loaded\n");
-	sys.stderr.write("Checking if tree is valid\n")
-	tree.checkTree();
 	sys.stderr.write("Adding taxon name to tree\n");
 	tree.addTaxonName(sys.argv[2]);
 	sys.stderr.write("Taxon name added to tree\n");
-			
+	sys.stderr.write("Checking if tree is valid\n");
+	tree.checkTree();
+	sys.stderr("Writing tree to file");
+	tree.dumpTree("Data/Tree.bin");
+	tree=TaxonomicTree();
+	sys.stderr.write("Checking tree file");
+	tree.loadTree("Data/Tree.bin");
+	sys.stderr.write("Tree is ready");
+	tree.checkTree();
