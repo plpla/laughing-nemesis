@@ -8,7 +8,9 @@ class BiologicalAbundanceContigObject(ContigObject):
 	def __init__(self, name="", lengthInKmer=0, coloredKmers=0):
 		ContigObject.__init__(self, name, lengthInKmer, coloredKmers);
 		self.contigIdentifications=[];
-	
+		self.LCA_id="";
+		self.LCA_name="";
+		
 	def addNewContigIdentification(self, Name, Length, Matches):
 		newContigIdentification=ContigIdentificationObject(Name, Length, Matches);
 		self.contigIdentifications.append(newContigIdentification);
