@@ -9,9 +9,8 @@ The program display only entries for wich there is a PL-value higher than 0. It 
 """
 
 import sys, os, subprocess
-from BiologicalAbundanceContigObject import *
-
-from Error import *;
+from Modules.BiologicalAbundanceContigObject import *
+from Modules.Error import *
 
 
 def testValidity():

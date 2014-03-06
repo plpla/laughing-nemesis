@@ -27,16 +27,20 @@ def prepareData(args):
 	converter=GenomesToTaxon.GenomesToTaxon();
 	converter.prepareConverter(args['f']);
 	converter.dumpConverter(ConverterBinaryFile);
+
+def findLCA(args):
+	sys.stderr.write("Searching the best matches for each contigs based on Ray output\n");
 	
-
-
-
-if __name__=="__main__":
+	
+	
+ __name__=="__main__":
 	if(len(sys.argv)==1):
 		print(__doc__)
 	parser=OptionParser.OptionParser(sys.argv[1:]);
 	args=parser.getArguments();
 	if(args['t'] and args['f'] and args['n']):
 		prepareData(args);
+	if(args['d']):
+		findLCA(args);
 	
 
