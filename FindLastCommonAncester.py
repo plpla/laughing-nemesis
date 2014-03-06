@@ -11,7 +11,8 @@ import os
 import Modules.OptionParser as OptionParser
 import Modules.Taxon as Taxon
 import Modules.GenomesToTaxon as GenomesToTaxon
-
+from Modules.Functions import *
+from Modules.FileUtility import *
 
 ConverterBinaryFile="Data/Converter.bin"
 TreeBinaryFile="Data/Tree.bin";
@@ -28,19 +29,51 @@ def prepareData(args):
 	converter.prepareConverter(args['f']);
 	converter.dumpConverter(ConverterBinaryFile);
 
-def findLCA(args):
+def findContigsID(args):
 	sys.stderr.write("Searching the best matches for each contigs based on Ray output\n");
+	if(args['i']):
+		contigsIDfile=readPathsFile(args['i']);
+	else:
+		contigsIDfile=getPathsFromDirectory(args['d']);
+	checkFiles(contigsIDfile);
+	contigs=readContigsTSVfile(args['d']);
+	for files in contigsIDfile:
+		try:
+			readContigIdentificationFiles(files, contigs);
+		except:
+			warning("Unable to read: "+ files);
+	for contig in contigs:
+		contigs[contig].calculatePLvalues();
+	for contig in contigs:
+		if(len(contigs[contig].contigIdentifications)<=0):
+			continue;
+		else:
+			contigs[contig].selectBestIdentifications(args['b']);
+	return(contigs);
+
+def executeLCA(contigs):
+	id1="";
+	id2=""
+	for id in contigs[contig].contigIdentifications:
+		print(id.getSequenceName());
+		
+		
+		
 	
 	
-	
- __name__=="__main__":
+
+if __name__=="__main__":
 	if(len(sys.argv)==1):
 		print(__doc__)
 	parser=OptionParser.OptionParser(sys.argv[1:]);
 	args=parser.getArguments();
-	if(args['t'] and args['f'] and args['n']):
-		prepareData(args);
-	if(args['d']):
-		findLCA(args);
+	if(sys.argv[1]=="prepare"):
+		if(args['t'] and args['f'] and args['n']):
+			prepareData(args);
+	if(sys.argv[1]=="run"):
+		if(args['d'] and args['c']):
+			contigs=findContigsID(args);
+			executeLCA(contigs);
+
 	
 

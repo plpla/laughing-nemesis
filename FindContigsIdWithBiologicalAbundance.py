@@ -11,8 +11,9 @@ The program display only entries for wich there is a PL-value higher than 0. It 
 import sys, os, subprocess
 from Modules.BiologicalAbundanceContigObject import *
 from Modules.Error import *
+from Modules.Functions import *
 
-
+"""
 def testValidity():
 	if(len(sys.argv)==3):
 		try:
@@ -110,6 +111,8 @@ def showTSV(biologicalAbundanceContigs):
 	print(header);
 	for contigs in biologicalAbundanceContigs:
 		biologicalAbundanceContigs[contigs].showTSV(); 
+"""
+
 
 if __name__=="__main__":
 	testValidity();

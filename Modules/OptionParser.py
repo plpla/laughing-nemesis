@@ -16,13 +16,16 @@ class OptionParser():
 		self.subparsers=self.Parser.add_subparsers(help='sub-command help');
 		#prepare
 		self.parser_prepare=self.subparsers.add_parser('prepare', help='Prepare data for the construction fo the tree');
-		self.parser_prepare.add_argument('-t', type=str, help='The TreeOfLife-Edges.tsv file', required=True);
-		self.parser_prepare.add_argument('-n', type=str, help='The Taxon-Names.tsv file', required=True);
-		self.parser_prepare.add_argument('-f', type=str, help='The GenomeToTaxon.tsv file', required=True);
+		self.parser_prepare.add_argument('-t', type=str, help='The TreeOfLife-Edges.tsv file', default=None, required=True);
+		self.parser_prepare.add_argument('-n', type=str, help='The Taxon-Names.tsv file', default=None, required=True);
+		self.parser_prepare.add_argument('-f', type=str, help='The GenomeToTaxon.tsv file', default=None, required=True);
 		#run
 		self.parser_run=self.subparsers.add_parser('run', help='Find the last common ancester');
 		self.parser_run.add_argument('-d', type=str, help='The biological abundance directory', required=True);
-		
+		self.parser_run.add_argument('-c', type=open, help='The contig file (.fasta)', required=True);
+		self.parser_run.add_argument('-i', type=open, help='File containing a list of contigIdentification file', required=False);
+		self.parser_run.add_argument('-b', type=int, help='Maximum number of best match to consider. Impact compute time (default 10)',default=10,  required=False);
+
 		#parse the args...
 		self.Arguments=vars(self.Parser.parse_args(args));
 

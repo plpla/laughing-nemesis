@@ -3,6 +3,12 @@
 import sys;
 import Error
 
+
+def checkFiles(listOfFile):
+	for i in listOfFile:
+		if not(isValid(i)):
+			Error.error("File"+str(i)+"can't be opened");	
+
 def isValid(file):
 	valid=1;
 	try:
