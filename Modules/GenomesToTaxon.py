@@ -54,8 +54,11 @@ class GenomesToTaxon():
 
 	def genomeIsValid(self, genome):
 		detect=0;
-		if(self.getConverter()[genome]):
-			detect=1;
+		try:
+			if(self.getConverter()[genome]):
+				detect=1;
+		except:
+			detect=0;
 		return detect;
 
 
