@@ -37,7 +37,7 @@ class TaxonName():
         self.Rank = rank
 
 class Taxon():
-    def  __init__(self, taxonid):
+    def __init__(self, taxonid):
         self.ID = taxonid
         self.Parent = ""
         self.Kids = []

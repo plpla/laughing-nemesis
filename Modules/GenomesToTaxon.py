@@ -12,49 +12,49 @@ except:
 
 class GenomesToTaxon():
     def __init__(self):
-        self.Converter={};
+        self.Converter = {}
 
     def prepareConverter(self, fileIn):
-        FileUtility.isValid(fileIn);
-        sys.stderr.write("counting lines to prepare converter\n");
-        numOfLines=FileUtility.countLines(fileIn);
-        sys.stderr.write(str(numOfLines)+" to read\n");
-        readed=0;
+        FileUtility.isValid(fileIn)
+        sys.stderr.write("counting lines to prepare converter\n")
+        numOfLines = FileUtility.countLines(fileIn)
+        sys.stderr.write(str(numOfLines)+" to read\n")
+        readed = 0
         for line in open(fileIn):
-            genome=int(line.split()[0]);
-            taxon=int(line.split()[1]);
-            self.Converter[genome]=taxon;
-            readed+=1;
-            if(readed%100000==0):
-                sys.stderr.write(str(readed)+" lines readed on "+str(numOfLines)+"\n");
+            genome = int(line.split()[0])
+            taxon = int(line.split()[1])
+            self.Converter[genome] = taxon
+            readed += 1
+            if readed%100000 == 0:
+                sys.stderr.write(str(readed)+" lines readed on "+str(numOfLines)+"\n")
 
     def dumpConverter(self, fileOut):
-        sys.stderr.write("Writing converter to file\n");
-        f=open(fileOut,"wb");
-        pickle.dump(self.Converter,f, protocol=2);
-        f.close();
-        sys.stderr.write("Converter dumped\n");
+        sys.stderr.write("Writing converter to file\n")
+        f = open(fileOut,"wb")
+        pickle.dump(self.Converter, f, protocol=2)
+        f.close()
+        sys.stderr.write("Converter dumped\n")
 
     def loadConverter(self, file):
-        sys.stderr.write("Loading converter from file\n");
-        if(FileUtility.isValid(file)):
-            f=open(file, "rb");
-            self.Converter=pickle.load(f);
-            f.close();
-            sys.stderr.write("Converted loaded\n");
+        sys.stderr.write("Loading converter from file\n")
+        if FileUtility.isValid(file):
+            f = open(file, "rb")
+            self.Converter = pickle.load(f)
+            f.close()
+            sys.stderr.write("Converted loaded\n")
         else:
-            Error.error("Converter.bin can not be opened. You should produce or reproduce it using prepare.py");
+            Error.error("Converter.bin can not be opened. You should produce or reproduce it using prepare.py")
 
     def convertToTaxon(self, genome):
-        if(self.genomeIsValid(genome)):
-            return(self.Converter[genome]);
+        if self.genomeIsValid(genome):
+            return self.Converter[genome]
 
     def getConverter(self):
-        return(self.Converter);
+        return self.Converter
 
     def genomeIsValid(self, genome):
-        sys.stderr.write("Searching for genome id:"+str(genome)+"\n");
-        detect=0;
+        sys.stderr.write("Searching for genome id:"+str(genome)+"\n")
+        detect = 0
         """
         try:
             if(self.getConverter()[genome]):
@@ -62,19 +62,19 @@ class GenomesToTaxon():
         except:
             detect=0;
         """
-        if(genome in self.getConverter()):
-            detect=1;
+        if genome in self.getConverter():
+            detect = 1
         else:
-            detect=0;
-        return detect;
+            detect = 0
+        return detect
 
 
 #test main      
 if __name__=="__main__":
     if (len(sys.argv)==2):
-        file=sys.argv[1];
-        converter=GenomesToTaxon();
-        converter.prepareConverter(file, "Data/Converter.bin");
-    newConverter=GenomesToTaxon();
-    newConverter.loadConverter("Data/Converter.bin");
+        file_name=sys.argv[1]
+        converter=GenomesToTaxon()
+        converter.prepareConverter(file_name, "Data/Converter.bin")
+    newConverter=GenomesToTaxon()
+    newConverter.loadConverter("Data/Converter.bin")
 
