@@ -87,12 +87,12 @@ class TaxonomicTree():
         return self.Nodes
 
     def nodeExist(self, nodeId):
-        detect = 0
+        detect = False
         try:
             self.Nodes[nodeId]
-            detect = 1
+            detect = True
         except:
-            detect = 0
+            detect = False
         return detect
 
     def addNode(self, node):
@@ -144,12 +144,12 @@ class TaxonomicTree():
         parentsOfNode2 = []
         parentsOfNode2.append(node2)
         lca = -1
-        while self.getNodes(node1).hasParents():
-            parentToAdd = self.getNodes(node1).getParents()
+        while self.getNode(node1).hasParents(): #TODO: use root instead of "hasParents()"
+            parentToAdd = self.getNode(node1).getParents()
             parentsOfNode1.append(parentToAdd)
             node1 = parentToAdd
-        while self.getNodes(node2).hasParents():
-            parentToAdd = self.getNodes(node2).getParents()
+        while self.getNode(node2).hasParents():
+            parentToAdd = self.getNode(node2).getParents()
             parentsOfNode2.append(parentToAdd)
             node2 = parentToAdd
         for i in parentsOfNode1:
