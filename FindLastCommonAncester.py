@@ -64,7 +64,11 @@ def findContigsID(args):
 			contigs[contig].selectBestIdentifications(args['b']);
 	return(contigs);
 
+"""
+Need to redesign so that special cases are sent to a file
+"""
 def executeLCA(contigs, tree, converter):
+	lca=-1;
 	for contig in contigs:
 		idList=contigs[contig].contigIdentifications;
 		numberOfId=len(idList);
@@ -72,6 +76,7 @@ def executeLCA(contigs, tree, converter):
 		if(numberOfId==0):
 			pass;	#TODO: Will have to do something with uncoloried contigs. Are they still in there?
 		if(numberOfId==1):
+			sys.stderr.write("Case where there is only 1 match:\n");
 			if(idList[0].getSequenceName().split('|')[0]=="gi"):
 				sys.stderr.write(idList[0].getSequenceName());
 				id=int(idList[0].getSequenceName().split('|')[1]);
@@ -85,7 +90,38 @@ def executeLCA(contigs, tree, converter):
 					sys.stderr.write("NOT VALID\n")
 			else:
 				sys.stderr.write(contigs[contig].getName()); #DERNIERE LIGNE MODIFIE
-		
+		if(numberOfId>1):
+			sys.stderr.write("Case where there is more than one match\n");
+			index=0;
+			lca=0;
+			while(lca==0):
+				try:
+					sys.stderr.write("Searching a lca start with genome:\n");
+					sys.stderr.write(idList[index].getSequenceName()+"\n");
+					lca=int(idList[index].getSequenceName().split('|')[1]);
+					if not(converter.genomeIsValid(lca)):
+						lca=0;
+				except:
+					index+=1;
+					lca=0;
+			#endWhile
+			#LCA has now a valid value. We can iterate on each entry to find the true lca!
+			#Got a problem in this section with taxon/genome id.
+			id1=converter.convertToTaxon(lca);
+			for identification in idList:
+				if(identification.getSequenceName().split('|')[0]=="gi"):
+					sys.stderr.write("In a true LCA case. Converting an id");
+					id2=int(identification.getSequenceName().split('|')[1]);
+					sys.stderr.write("In a true LCA case. Checking if valid");
+					if(converter.genomeIsValid(id2)):
+						sys.stderr.write("Searching the LCA in the tree\n");
+						id2=converter.convertToTaxon(id2);
+						lca=tree.findLCA(id1, id2);
+						id1=lca;
+				else:
+					pass;#We should do something about it...
+			print(lca);
+				
 		#id1="";
 		#id2="";
 
