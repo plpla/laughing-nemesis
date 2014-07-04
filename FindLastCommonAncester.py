@@ -99,7 +99,9 @@ def executeLCA(contigs, tree, converter):
                     sys.stderr.write("Searching a lca start with genome:\n")
                     sys.stderr.write(idList[index].getSequenceName()+"\n")
                     lca = int(idList[index].getSequenceName().split('|')[1])
-                    if not(converter.genomeIsValid(lca)):
+                    validity = converter.genomeIsValid(lca)
+                    sys.stderr.write("id %s is valid: %s\n" % (lca, validity))
+                    if not validity:
                         lca = 0
                 except:
                     index += 1
