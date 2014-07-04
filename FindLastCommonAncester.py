@@ -97,12 +97,17 @@ def executeLCA(contigs, tree, converter):
             while lca == 0 and index < numberOfId:
                 sys.stderr.write("Searching a lca start with genome:\n")
                 sys.stderr.write(idList[index].getSequenceName()+"\n")
-                lca = int(idList[index].getSequenceName().split('|')[1])
+                try:
+                    lca = int(idList[index].getSequenceName().split('|')[1])
+                except IndexError:
+                    lca = 0
+                    index += 1
                 validity = converter.genomeIsValid(lca)
                 sys.stderr.write("id %s is valid: %s\n" % (lca, validity))
                 if not validity:
                     lca = 0
                     index += 1
+                    sys.stderr.write("index %s\n" % index)
             if not converter.genomeIsValid(lca):
                 continue    # If you are here, you have reached the last possible identification and
                 #  have not found one that is valid.

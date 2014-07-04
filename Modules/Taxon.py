@@ -144,11 +144,11 @@ class TaxonomicTree():
         parentsOfNode2 = []
         parentsOfNode2.append(node2)
         lca = -1
-        while self.getNode(node1).hasParents(): #TODO: use root instead of "hasParents()"
+        while self.getNode(node1).hasParent(): #TODO: use root instead of "hasParents()"
             parentToAdd = self.getNode(node1).getParents()
             parentsOfNode1.append(parentToAdd)
             node1 = parentToAdd
-        while self.getNode(node2).hasParents():
+        while self.getNode(node2).hasParent():
             parentToAdd = self.getNode(node2).getParents()
             parentsOfNode2.append(parentToAdd)
             node2 = parentToAdd
