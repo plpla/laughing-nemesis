@@ -73,8 +73,8 @@ def executeLCA(contigs, tree, converter):
         idList = contigs[contig].contigIdentifications
         numberOfId = len(idList)
         #3 cases: 0 id, 1 id and 2 id or more
-        if numberOfId==0:
-            pass	#TODO: Will have to do something with uncoloried contigs. Are they still in there?
+        if numberOfId == 0:
+            pass    # TODO: Will have to do something with uncoloried contigs. Are they still in there?
         if numberOfId == 1:
             sys.stderr.write("Case where there is only 1 match:\n")
             if idList[0].getSequenceName().split('|')[0] == "gi":
@@ -82,9 +82,7 @@ def executeLCA(contigs, tree, converter):
                 id = int(idList[0].getSequenceName().split('|')[1])
                 if converter.genomeIsValid(id):
                     contigs[contig].LCA_id = converter.convertToTaxon(id)
-                    ##	sys.stderr.write("Converted");
                     node = tree.getNode(contigs[contig].LCA_id)
-                    #	sys.stderr.write("Found node");
                     contigs[contig].LCA_name = node.getTaxonName().getName()
                 else:
                     sys.stderr.write("NOT VALID\n")
@@ -127,34 +125,35 @@ def executeLCA(contigs, tree, converter):
                         id1 = lca
                 else:
                     pass #We should do something about it...
-            print(lca)
+            contigs[contig].LCA_id = converter.convertToTaxon(id)
+            node = tree.getNode(contigs[contig].LCA_id)
+            contigs[contig].LCA_name = node.getTaxonName().getName()
+        print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
 
         #id1="";
         #id2="";
 
 
 if __name__=="__main__":
-    if(len(sys.argv)==1):
+    if len(sys.argv) == 1:
         print(__doc__)
-    parser=OptionParser.OptionParser(sys.argv[1:])
-    args=parser.getArguments()
-    if(sys.argv[1]=="prepare"):
-        if(args['t'] and args['f'] and args['n']):
+    parser = OptionParser.OptionParser(sys.argv[1:])
+    args = parser.getArguments()
+    if sys.argv[1] == "prepare":
+        if args['t'] and args['f'] and args['n']:
             prepareData(args)
-    if(sys.argv[1]=="run"):
-        if(args['d'] and args['c']):
-            sys.stderr.write("Loading tree of life\n")
-            tree=prepareTreeOfLife()
-            sys.stderr.write("Tree of life loaded!\n")
-            sys.stderr.write("Loading genome to taxon converter\n")
-            converter=prepareGenomeToTaxonConverter()
-
-            sys.stderr.write("Genome to taaxon converter loaded\n")
-            sys.stderr.write("Searching best matches for contigs\n")
-            contigs=findContigsID(args)
-            sys.stderr.write("Searching is done!\n")
-            sys.stderr.write("Searching LCA\n")
-            executeLCA(contigs, tree, converter)
+    if sys.argv[1] == "run" and args['d'] and args['c']:
+        sys.stderr.write("Loading tree of life\n")
+        tree = prepareTreeOfLife()
+        sys.stderr.write("Tree of life loaded!\n")
+        sys.stderr.write("Loading genome to taxon converter\n")
+        converter = prepareGenomeToTaxonConverter()
+        sys.stderr.write("Genome to taaxon converter loaded\n")
+        sys.stderr.write("Searching best matches for contigs\n")
+        contigs = findContigsID(args)
+        sys.stderr.write("Searching is done!\n")
+        sys.stderr.write("Searching LCA\n")
+        executeLCA(contigs, tree, converter)
 
 	
 

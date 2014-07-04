@@ -3,34 +3,34 @@
 from Error import *
 
 class ContigObject(object):
-	"Class used for DeNovo assembly analysis"
-	
-	def __init__(self, Name="", LengthInKmer=0, ColoredKmers=0):
-		self.name=Name;
-		self.lengthInKmer=LengthInKmer;
-		self.coloredKmers=ColoredKmers;
+    "Class used for DeNovo assembly analysis"
 
-	def getName(self):
-		return self.name;
+    def __init__(self, Name="", LengthInKmer=0, ColoredKmers=0):
+        self.name=Name;
+        self.lengthInKmer=LengthInKmer;
+        self.coloredKmers=ColoredKmers;
 
-	def getLengthInKmer(self):
-		return int(self.lengthInKmer);
+    def getName(self):
+        return self.name;
 
-	def getColoredKmers(self):
-		return int(self.coloredKmers);
+    def getLengthInKmer(self):
+        return int(self.lengthInKmer);
 
-	def setName(self, string):
-		self.name=str(string);
+    def getColoredKmers(self):
+        return int(self.coloredKmers);
 
-	def setLengthInKmers(self, length):
-		self.lengthInKmer=length;
+    def setName(self, string):
+        self.name=str(string);
 
-	def setColoredKmers(self, number):
-		self.coloredKmers=number;
+    def setLengthInKmers(self, length):
+        self.lengthInKmer=length;
 
-	def showTSV(self):
-		line=self.name+"\t"+str(self.lengthInKmer)+"\t"+str(self.coloredKmers);
-		return line;
+    def setColoredKmers(self, number):
+        self.coloredKmers=number;
+
+    def showTSV(self):
+        line=self.name+"\t"+str(self.lengthInKmer)+"\t"+str(self.coloredKmers);
+        return line;
 
 
 		
