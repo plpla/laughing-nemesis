@@ -43,9 +43,9 @@ class Taxon():
         self.Kids = []
         self.TaxonName = TaxonName()
 
-    def hasParent(self, taxonId):
+    def hasParent(self):
         a = False
-        if taxonId in self.Parent:
+        if self.Parent != "":
             a = True
         return a
 
