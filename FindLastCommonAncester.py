@@ -68,7 +68,7 @@ def findContigsID(args):
 Need to redesign so that special cases are sent to a file
 """
 def executeLCA(contigs, tree, converter):
-    lca =- 1
+    lca = -1
     for contig in contigs:
         idList = contigs[contig].contigIdentifications
         numberOfId = len(idList)
@@ -91,7 +91,7 @@ def executeLCA(contigs, tree, converter):
             else:
                 sys.stderr.write(contigs[contig].getName()) #DERNIERE LIGNE MODIFIE
         if numberOfId > 1:
-            sys.stderr.write("Case where there is more than one match\n")
+            sys.stderr.write("Case where there is %s match\n" % numberOfId)
             index = 0
             lca = 0
             while lca == 0:

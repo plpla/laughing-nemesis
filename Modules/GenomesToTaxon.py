@@ -54,7 +54,7 @@ class GenomesToTaxon():
 
     def genomeIsValid(self, genome):
         sys.stderr.write("Searching for genome id:"+str(genome)+"\n")
-        detect = 0
+        detect = False
         """
         try:
             if(self.getConverter()[genome]):
@@ -63,9 +63,9 @@ class GenomesToTaxon():
             detect=0;
         """
         if genome in self.getConverter():
-            detect = 1
+            detect = True
         else:
-            detect = 0
+            detect = False
         return detect
 
 
