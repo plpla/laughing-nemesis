@@ -89,24 +89,24 @@ def executeLCA(contigs, tree, converter):
                 else:
                     sys.stderr.write("NOT VALID\n")
             else:
-                sys.stderr.write(contigs[contig].getName()) #DERNIERE LIGNE MODIFIE
+                sys.stderr.write(contigs[contig].getName())    # DERNIERE LIGNE MODIFIE
         if numberOfId > 1:
             sys.stderr.write("Case where there is %s match\n" % numberOfId)
             index = 0
             lca = 0
-            while lca == 0:
-                try:
-                    sys.stderr.write("Searching a lca start with genome:\n")
-                    sys.stderr.write(idList[index].getSequenceName()+"\n")
-                    lca = int(idList[index].getSequenceName().split('|')[1])
-                    validity = converter.genomeIsValid(lca)
-                    sys.stderr.write("id %s is valid: %s\n" % (lca, validity))
-                    if not validity:
-                        lca = 0
-                except:
-                    index += 1
+            while lca == 0 and index < numberOfId:
+                sys.stderr.write("Searching a lca start with genome:\n")
+                sys.stderr.write(idList[index].getSequenceName()+"\n")
+                lca = int(idList[index].getSequenceName().split('|')[1])
+                validity = converter.genomeIsValid(lca)
+                sys.stderr.write("id %s is valid: %s\n" % (lca, validity))
+                if not validity:
                     lca = 0
-            #endWhile
+                    index += 1
+            if not converter.genomeIsValid(lca):
+                continue    # If you are here, you have reached the last possible identification and
+                #  have not found one that is valid.
+
             #LCA has now a valid value. We can iterate on each entry to find the true lca!
             #Got a problem in this section with taxon/genome id.
             id1 = converter.convertToTaxon(lca)
