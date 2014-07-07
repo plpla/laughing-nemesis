@@ -104,7 +104,7 @@ class TaxonomicTree():
         if self.nodeExist(node_id):
             return self.Nodes[node_id]
         else:
-            raise ValueError("get_node: required node does not exist")
+            raise ValueError("get_node: required node does not exist %s\n" % node_id)
 
     def dumpTree(self, file_name):
         sys.stderr.write("Dumping tree to disk\n")
