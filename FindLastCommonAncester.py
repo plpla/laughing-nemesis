@@ -125,27 +125,29 @@ def executeLCA(contigs, tree, converter):
                 id1 = converter.convertToTaxon(lca)
                 for identification in idList:
                     if identification.getSequenceName().split('|')[0]=="gi":
-                        sys.stderr.write("In a true LCA case. Converting an id")
+                        sys.stderr.write("Found a GI. Fetching name\n")
                         id2 = int(identification.getSequenceName().split('|')[1])
-                        sys.stderr.write("In a true LCA case. Checking if valid")
+                        sys.stderr.write("Converting name to taxon id. Checking if valid\n")
                         if converter.genomeIsValid(id2):
-                            sys.stderr.write("Searching the LCA in the tree\n")
                             id2 = converter.convertToTaxon(id2)
+                            sys.stderr.write("Searching the LCA in the tree for %s and %s\n" % (id1, id2))
                             lca = tree.findLCA(id1, id2)
+                            sys.stderr.write("Resulting LCA is %s\n" %lca)
                             id1 = lca
                         else:
-                            sys.stderr.write("At this strange place 1 with %s \n" % contig)
-                            pass
+                            sys.stderr.write("Sequence %s cant be converted\n" % id2)
+                            continue
                     else:
-                        sys.stderr.write("%s , %s is not a valid id \n" % (contig, identification.getSequenceName()))
-                        pass #We should do something about it...
-                contigs[contig].LCA_id = converter.convertToTaxon(id)
-                try:
-                    node = tree.getNode(contigs[contig].LCA_id)
-                    name = node.getTaxonName().getName()
-                except ValueError:
-                    name = "Unknown"
-                contigs[contig].LCA_name = name
+                        sys.stderr.write("%s , %s there is no GI \n" % (contig, identification.getSequenceName()))
+                        continue #We should do something about it...
+            contigs[contig].LCA_id = lca
+            if tree.nodeExist(contigs[contig].LCA_id):
+                node = tree.getNode(contigs[contig].LCA_id)
+                sys.stderr.write("Setting %s LCA_name to %s by taxon %s\n" % (contig, node.getTaxonName().getName(), node.ID))
+                contigs[contig].LCA_name = node.getTaxonName().getName()
+            else:
+                contigs[contig].LCA_name = "Unknown"
+                #contigs[contig].LCA_name = name
         print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
 
         #id1="";
