@@ -20,6 +20,11 @@ ConverterBinaryFile="Data/Converter.bin"
 TreeBinaryFile = "Data/Tree.bin"
 ######################
 
+possible_taxonomic_level=["species", "phylum", "order", "species group", "kingdom", "class", "genus", "family",
+                          "subspecies"]
+
+
+
 def prepareData(args):
     sys.stderr.write("Preparing data...\n")
     tree = Taxon.TaxonomicTree()
@@ -162,10 +167,42 @@ def executeLCA(contigs, tree, converter, verbosity):
             else:
                 contigs[contig].LCA_name = "Unknown"
                 #contigs[contig].LCA_name = name
-        print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
-
+        #print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
+    return contigs
         #id1="";
         #id2="";
+
+#TODO:#Optimize output functions to Fred needs
+
+def out_by_max_depth(contigs, tree, level):
+    """
+    Try to bring all contigs to the same taxonomic level. There are 2 possible problems:
+    Taxon that have "no rank" and taxon that are deeper than the wanted level.
+    For the second one, we just output their true lca level.
+    :param contigs: A dict of BiologicalAbundanceContigObject
+    :param tree: A full and valid TaxonomicTree. Validity is not verified
+    :param level: The taxonomic level at which the user want to bring the contigs
+    :return: Nothing but some string to stdout.
+    """
+    for contig in contigs:
+        taxon = tree.getNode(contigs[contig].LCA_id)
+        #3 possible cases: the taxonomic level is the one selecter
+        # the taxonomic level is too high (have to search for a taxon at the wanted level)
+        # the taxonomic level is too low (we will find root before a taxon at the wanted level)
+        if taxon.TaxonName.Rank == level:
+            print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
+        else:
+            #We search for either root or a taxon at the wanted level
+            while True:
+                taxon = tree.getNode(taxon.Parent)
+                if taxon.TaxonName.Rank == level or taxon.TaxonName.Rank == "root":
+                    break
+            print("%s\t%s\t%s" % (contig, taxon.ID, taxon.TaxonName.Name))
+
+
+def out_by_contig(contigs):
+    for contig in contigs:
+        print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
 
 
 if __name__=="__main__":
@@ -177,6 +214,9 @@ if __name__=="__main__":
         if args['t'] and args['f'] and args['n']:
             prepareData(args)
     if sys.argv[1] == "lca" and args['d'] and args['c']:
+        if "r" in args and not args['r'] in possible_taxonomic_level:
+            sys.stderr.write("Bad taxonomic level. Possible choices are:\n %s\n" % possible_taxonomic_level)
+            sys.exit(0)
         sys.stderr.write("Loading tree of life\n")
         tree = prepareTreeOfLife()
         sys.stderr.write("Tree of life loaded!\n")
@@ -187,7 +227,13 @@ if __name__=="__main__":
         contigs = findContigsID(args)
         sys.stderr.write("Searching is done!\n")
         sys.stderr.write("Searching LCA\n")
-        executeLCA(contigs, tree, converter, args["v"])
+        contigs = executeLCA(contigs, tree, converter, args["v"])
+        if "r" in args:
+            out_by_max_depth(contigs, tree, args["-r"])
+        else:
+            out_by_contig(contigs)
+
+
 
 	
 

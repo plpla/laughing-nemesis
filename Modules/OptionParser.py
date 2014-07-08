@@ -38,6 +38,12 @@ class OptionParser():
                                      default=10, required=False)
         self.parser_lca.add_argument("-path", help="File containing the path to different ContigIdentification.tsv" +
                                      " files", type=str, required=False)
+        self.parser_lca.add_argument("-r", help="Maximum taxonomic level to identify contig" +
+                                                "(min = root, max= subspecies)" +
+                                     "Can cause the lost of some result due to unclassified taxon",
+                                     type=str, required=False)
+        #The -r option will probably cause some strange behavior for 2 reasons: Unclassified taxon and taxon identified
+        #at a deeper taxonomic level than asked depth
 
         self.parser_lca.add_argument("-v", help="Increase verbosity (dafault False)",
                                  type=bool, default=False, required=False)
