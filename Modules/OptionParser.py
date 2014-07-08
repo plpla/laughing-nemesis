@@ -14,9 +14,6 @@ class OptionParser():
     def __init__(self, args):
         self.parser = argparse.ArgumentParser(description="Determine the last common ancester of contigs from RayMeta.")
 
-        self.parser.add_argument("-v", description="Increase verbosity (dafault False)",
-                                 type=bool, default=False, required=False)
-
         self.subparsers = self.parser.add_subparsers(help='sub-command help')
 
         ##########         prepare             #########################
@@ -28,19 +25,22 @@ class OptionParser():
                                          required=True)
         self.parser_prepare.add_argument('-f', type=str, help='The GenomeToTaxon.tsv file', default=None,
                                          required=True)
-        ##########           run                #######################
-        self.parser_run = self.subparsers.add_parser('lca', help='Find the last common ancester of each contigs')
-        self.parser_run.add_argument('-d', type=str, help='The biological abundance directory',
+        ##########           lca                #######################
+        self.parser_lca = self.subparsers.add_parser('lca', help='Find the last common ancester of each contigs')
+        self.parser_lca.add_argument('-d', type=str, help='The biological abundance directory',
                                      required=True)
-        self.parser_run.add_argument('-c', type=str, help='The contig file (.fasta)',
+        self.parser_lca.add_argument('-c', type=str, help='The contig file (.fasta)',
                                      required=True)
-        self.parser_run.add_argument('-i', type=str, help='File containing a list of contigIdentification file',
+        self.parser_lca.add_argument('-i', type=str, help='File containing a list of contigIdentification file',
                                      required=False)
-        self.parser_run.add_argument('-b', type=int, help='Maximum number of best match to consider. ' +
+        self.parser_lca.add_argument('-b', type=int, help='Maximum number of best match to consider. ' +
                                                           'Impact compute time (default 10)',
                                      default=10, required=False)
-        self.parser_run.add_argument("-path", help="File containing the path to different ContigIdentification.tsv" +
+        self.parser_lca.add_argument("-path", help="File containing the path to different ContigIdentification.tsv" +
                                      " files", type=str, required=False)
+
+        self.parser_lca.add_argument("-v", help="Increase verbosity (dafault False)",
+                                 type=bool, default=False, required=False)
 
         ##########        Identify                ######################
 
@@ -55,14 +55,14 @@ class OptionParser():
                                                      " files", type=str, required=False)
 
         #parse the args...
-        self.Arguments = vars(self.Parser.parse_args(args))
+        self.Arguments = vars(self.parser.parse_args(args))
 
     #Needed to get the args
     def getArguments(self):
         return self.Arguments
 
     def getParser(self):
-        return self.Parser
+        return self.parser
 
 if __name__=="__main__":
     parser = OptionParser(sys.argv[1:])

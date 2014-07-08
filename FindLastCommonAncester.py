@@ -82,7 +82,8 @@ def executeLCA(contigs, tree, converter, verbosity):
             if verbosity:
                 sys.stderr.write("Case where there is only 1 match:\n")
             if idList[0].getSequenceName().split('|')[0] == "gi":
-                sys.stderr.write(idList[0].getSequenceName())
+                if verbosity:
+                    sys.stderr.write(idList[0].getSequenceName()+"\n")
                 id = int(idList[0].getSequenceName().split('|')[1])
                 if converter.genomeIsValid(id):
                     contigs[contig].LCA_id = converter.convertToTaxon(id)
@@ -159,8 +160,7 @@ def executeLCA(contigs, tree, converter, verbosity):
                                                                                   node.ID))
                 contigs[contig].LCA_name = node.getTaxonName().getName()
             else:
-                if verbosity:
-                    contigs[contig].LCA_name = "Unknown"
+                contigs[contig].LCA_name = "Unknown"
                 #contigs[contig].LCA_name = name
         print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
 
@@ -176,7 +176,7 @@ if __name__=="__main__":
     if sys.argv[1] == "prepare":
         if args['t'] and args['f'] and args['n']:
             prepareData(args)
-    if sys.argv[1] == "run" and args['d'] and args['c']:
+    if sys.argv[1] == "lca" and args['d'] and args['c']:
         sys.stderr.write("Loading tree of life\n")
         tree = prepareTreeOfLife()
         sys.stderr.write("Tree of life loaded!\n")
