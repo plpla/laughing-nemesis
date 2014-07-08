@@ -67,10 +67,11 @@ def findContigsID(args):
 """
 Need to redesign so that special cases are sent to a file
 """
-def executeLCA(contigs, tree, converter):
+def executeLCA(contigs, tree, converter, verbosity):
     lca = -1
     for contig in contigs:
-        sys.stderr.write("Computing %s\n" %contig)
+        if verbosity:
+            sys.stderr.write("Computing %s\n" %contig)
         idList = contigs[contig].contigIdentifications
         numberOfId = len(idList)
         #3 cases: 0 id, 1 id and 2 id or more
@@ -78,7 +79,8 @@ def executeLCA(contigs, tree, converter):
             contigs[contig].LCA_id = "No color"
             contigs[contig].LCA_name = "Unknown"
         if numberOfId == 1:
-            sys.stderr.write("Case where there is only 1 match:\n")
+            if verbosity:
+                sys.stderr.write("Case where there is only 1 match:\n")
             if idList[0].getSequenceName().split('|')[0] == "gi":
                 sys.stderr.write(idList[0].getSequenceName())
                 id = int(idList[0].getSequenceName().split('|')[1])
@@ -89,19 +91,22 @@ def executeLCA(contigs, tree, converter):
                 else:
                     contigs[contig].LCA_id = "Invalid id"
                     contigs[contig].LCA_name = "Unknown"
-                    sys.stderr.write("NOT VALID\n")
+                    if verbosity:
+                        sys.stderr.write("NOT VALID\n")
             else:
                 contigs[contig].LCA_id = "No gi"
                 contigs[contig].LCA_name = "Unknown"
                 sys.stderr.write(contigs[contig].getName())    # DERNIERE LIGNE MODIFIE
         if numberOfId > 1:
-            sys.stderr.write("Case where there is %s match\n" % numberOfId)
+            if verbosity:
+                sys.stderr.write("Case where there is %s match\n" % numberOfId)
             index = 0
             lca = 0
             #1- We set lca to a value that is know to exist in the tree
             while lca == 0 and index < numberOfId:
-                sys.stderr.write("Searching LCA starting point with genome: ")
-                sys.stderr.write(idList[index].getSequenceName()+"\n")
+                if verbosity:
+                    sys.stderr.write("Searching LCA starting point with genome: ")
+                    sys.stderr.write(idList[index].getSequenceName()+"\n")
                 try:
                     lca = int(idList[index].getSequenceName().split('|')[1])
                 except IndexError:
@@ -109,11 +114,11 @@ def executeLCA(contigs, tree, converter):
                     index += 1
                     continue    #TODO: This section is messy... Do some clean code bro!
                 validity = converter.genomeIsValid(lca)
-                sys.stderr.write("id %s is valid: %s\n" % (lca, validity))
+                if verbosity:
+                    sys.stderr.write("id %s is valid: %s\n" % (lca, validity))
                 if not validity:
                     lca = 0
                     index += 1
-                    sys.stderr.write("index %s\n" % index)
             if not converter.genomeIsValid(lca):
                 contigs[contig].LCA_id = "Unidentified"
                 contigs[contig].LCA_name = "Unknown"
@@ -125,28 +130,37 @@ def executeLCA(contigs, tree, converter):
                 id1 = converter.convertToTaxon(lca)
                 for identification in idList:
                     if identification.getSequenceName().split('|')[0]=="gi":
-                        sys.stderr.write("Found a GI. Fetching name\n")
+                        if verbosity:
+                            sys.stderr.write("Found a GI. Fetching name\n")
                         id2 = int(identification.getSequenceName().split('|')[1])
-                        sys.stderr.write("Converting name to taxon id. Checking if valid\n")
+                        if verbosity:
+                            sys.stderr.write("Converting name to taxon id. Checking if valid\n")
                         if converter.genomeIsValid(id2):
                             id2 = converter.convertToTaxon(id2)
-                            sys.stderr.write("Searching the LCA in the tree for %s and %s\n" % (id1, id2))
+                            if verbosity:
+                                sys.stderr.write("Searching the LCA in the tree for %s and %s\n" % (id1, id2))
                             lca = tree.findLCA(id1, id2)
-                            sys.stderr.write("Resulting LCA is %s\n" %lca)
+                            if verbosity:
+                                sys.stderr.write("Resulting LCA is %s\n" %lca)
                             id1 = lca
                         else:
-                            sys.stderr.write("Sequence %s cant be converted\n" % id2)
+                            if verbosity:
+                                sys.stderr.write("Sequence %s cant be converted\n" % id2)
                             continue
                     else:
-                        sys.stderr.write("%s , %s there is no GI \n" % (contig, identification.getSequenceName()))
+                        if verbosity:
+                            sys.stderr.write("%s , %s there is no GI \n" % (contig, identification.getSequenceName()))
                         continue #We should do something about it...
             contigs[contig].LCA_id = lca
             if tree.nodeExist(contigs[contig].LCA_id):
                 node = tree.getNode(contigs[contig].LCA_id)
-                sys.stderr.write("Setting %s LCA_name to %s by taxon %s\n" % (contig, node.getTaxonName().getName(), node.ID))
+                if verbosity:
+                    sys.stderr.write("Setting %s LCA_name to %s by taxon %s\n" % (contig, node.getTaxonName().getName(),
+                                                                                  node.ID))
                 contigs[contig].LCA_name = node.getTaxonName().getName()
             else:
-                contigs[contig].LCA_name = "Unknown"
+                if verbosity:
+                    contigs[contig].LCA_name = "Unknown"
                 #contigs[contig].LCA_name = name
         print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
 
@@ -173,7 +187,7 @@ if __name__=="__main__":
         contigs = findContigsID(args)
         sys.stderr.write("Searching is done!\n")
         sys.stderr.write("Searching LCA\n")
-        executeLCA(contigs, tree, converter)
+        executeLCA(contigs, tree, converter, args["v"])
 
 	
 

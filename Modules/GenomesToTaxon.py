@@ -26,7 +26,7 @@ class GenomesToTaxon():
             self.Converter[genome] = taxon
             readed += 1
             if readed%100000 == 0:
-                sys.stderr.write(str(readed)+" lines readed on "+str(numOfLines)+"\n")
+                sys.stderr.write(str(readed)+" lines readed out of "+str(numOfLines)+"\n")
 
     def dumpConverter(self, fileOut):
         sys.stderr.write("Writing converter to file\n")
@@ -53,7 +53,6 @@ class GenomesToTaxon():
         return self.Converter
 
     def genomeIsValid(self, genome):
-        sys.stderr.write("Searching for genome id:"+str(genome)+"\n")
         detect = False
         if genome in self.getConverter():
             detect = True
