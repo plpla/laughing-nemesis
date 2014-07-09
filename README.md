@@ -29,3 +29,9 @@ Code repositorie
 ================
 
 https://github.com/plpla/laughing-nemesis
+
+
+Version
+=======
+
+0.1
