@@ -185,8 +185,6 @@ def out_by_max_depth(contigs, tree, level):
     :return: Nothing but some string to stdout.
     """
     for contig in contigs:
-        sys.stderr.write("Ouputing for level %s\n" % level)
-        sys.stderr.write("Getting node %s\n" % contigs[contig].LCA_id)
         if contigs[contig].LCA_name == 'Unknown':
             print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
             continue
@@ -199,8 +197,6 @@ def out_by_max_depth(contigs, tree, level):
         else:
             #We search for either root or a taxon at the wanted level
             while True:
-                sys.stderr.write("Taxon %s is at level %s\n" % (taxon.ID, taxon.TaxonName.Rank))
-                sys.stderr.write("Will search for parent %s of %s\n" % (taxon.ID, taxon.Parent))
                 if taxon.Parent == "" and taxon.ID == 1:
                     #At this point we are at the root
                     break
