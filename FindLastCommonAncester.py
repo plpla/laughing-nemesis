@@ -11,7 +11,6 @@ import os
 import Modules.OptionParser as OptionParser
 import Modules.Taxon as Taxon
 import Modules.GenomesToTaxon as GenomesToTaxon
-from Modules.Functions import *
 from Modules.FileUtility import *
 
 ######################
