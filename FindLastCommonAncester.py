@@ -185,6 +185,11 @@ def out_by_max_depth(contigs, tree, level):
     :return: Nothing but some string to stdout.
     """
     for contig in contigs:
+        sys.stderr.write("Ouputing for level %s\n" % level)
+        sys.stderr.write("Getting node %s\n" % contigs[contig].LCA_id)
+        if contigs[contig].LCA_name == 'Unknown':
+            print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
+            continue
         taxon = tree.getNode(contigs[contig].LCA_id)
         #3 possible cases: the taxonomic level is the one selecter
         # the taxonomic level is too high (have to search for a taxon at the wanted level)
@@ -194,8 +199,14 @@ def out_by_max_depth(contigs, tree, level):
         else:
             #We search for either root or a taxon at the wanted level
             while True:
+                sys.stderr.write("Taxon %s is at level %s\n" % (taxon.ID, taxon.TaxonName.Rank))
+                sys.stderr.write("Will search for parent %s of %s\n" % (taxon.ID, taxon.Parent))
+                if taxon.Parent == "" and taxon.ID == 1:
+                    #At this point we are at the root
+                    break
                 taxon = tree.getNode(taxon.Parent)
-                if taxon.TaxonName.Rank == level or taxon.TaxonName.Rank == "root":
+                if taxon.TaxonName.Rank == level:
+                    #At this point we have reached the wanted level
                     break
             print("%s\t%s\t%s" % (contig, taxon.ID, taxon.TaxonName.Name))
 
@@ -214,7 +225,7 @@ if __name__=="__main__":
         if args['t'] and args['f'] and args['n']:
             prepareData(args)
     if sys.argv[1] == "lca" and args['d'] and args['c']:
-        if "r" in args and not args['r'] in possible_taxonomic_level:
+        if args['r'] != None and not args['r'] in possible_taxonomic_level:
             sys.stderr.write("Bad taxonomic level. Possible choices are:\n %s\n" % possible_taxonomic_level)
             sys.exit(0)
         sys.stderr.write("Loading tree of life\n")
@@ -228,8 +239,8 @@ if __name__=="__main__":
         sys.stderr.write("Searching is done!\n")
         sys.stderr.write("Searching LCA\n")
         contigs = executeLCA(contigs, tree, converter, args["v"])
-        if "r" in args:
-            out_by_max_depth(contigs, tree, args["-r"])
+        if "r" in args and args['r'] != None:
+            out_by_max_depth(contigs, tree, args["r"])
         else:
             out_by_contig(contigs)
 

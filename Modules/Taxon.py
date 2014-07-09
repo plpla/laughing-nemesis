@@ -166,7 +166,7 @@ class TaxonomicTree():
         for line in open(file):
             id = int(line.split('\t')[0])
             name = line.split('\t')[1]
-            rank = line.split('\t')[2]
+            rank = line.split('\t')[2].rstrip('\n')
             if self.nodeExist(id):
                 self.getNodes()[id].getTaxonName().setAll(name, rank)
             else:
