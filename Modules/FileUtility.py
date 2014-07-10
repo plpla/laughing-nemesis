@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-import subprocess
+import glob
 from Modules.BiologicalAbundanceContigObject import *
 
 def checkFiles(listOfFile):
@@ -71,12 +71,8 @@ def readPathsFile(pathToContigsIdFile):
 
 def getPathsFromDirectory(directory):
     command = "find "+directory+"| grep ContigIdentifications.tsv"
-    files = subprocess.check_output(command, shell=True)
-    contigIdentificationsFiles = files.split('\n')
-    for entry in contigIdentificationsFiles:
-        if entry == "" or '\n' in entry:
-            contigIdentificationsFiles.remove(entry)
-    return contigIdentificationsFiles
+    files = glob.glob(directory+"/*/ContigIdentifications.tsv")
+    return files
 
 def readContigsTSVfile(pathToFile):
     directory = pathToFile+"/_DeNovoAssembly/Contigs.tsv"
