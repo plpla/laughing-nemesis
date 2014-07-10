@@ -222,6 +222,9 @@ class TaxonomicTree():
         for line in open(file):
             parent=int(line.split()[0])
             kid=int(line.split()[1])
+            if kid == parent:
+                sys.stderr.write("Warning: I can't create a link from %s to %s (line %s)\n" % (parent, kid, numOfLine))
+                continue
             if self.nodeExist(parent):
                 if self.nodeExist(kid):
                     self.getNode(parent).addKid(kid)
@@ -234,7 +237,7 @@ class TaxonomicTree():
             else:
                 if self.nodeExist(kid):
                     newNode = Taxon(parent)
-                    self.addNode(parent)
+                    self.addNode(newNode)
                     self.getNode(kid).setParent(parent)
                     self.getNode(parent).addKid(kid)
                 else:
