@@ -12,13 +12,13 @@ import FileUtility
 
 class OptionParser():
     def __init__(self, args):
-        self.parser = argparse.ArgumentParser(description="Determine the last common ancester of contigs from RayMeta.")
+        self.parser = argparse.ArgumentParser(description="Set of tools to analyse metagenomic assembly produced by Ray<eta.")
 
         self.subparsers = self.parser.add_subparsers(help='sub-command help')
 
         ##########         prepare             #########################
         self.parser_prepare = self.subparsers.add_parser('prepare',
-                                                         help='Prepare data for the construction fo the tree')
+                                                         help='Prepare data for taxonomic analysis (lca)')
         self.parser_prepare.add_argument('-t', type=str, help='The TreeOfLife-Edges.tsv file', default=None,
                                          required=True)
         self.parser_prepare.add_argument('-n', type=str, help='The Taxon-Names.tsv file', default=None,
@@ -59,6 +59,20 @@ class OptionParser():
         self.parser_identification.add_argument("-path",
                                                 help="File containing the path to different ContigIdentification.tsv"+
                                                      " files", type=str, required=False)
+
+
+        ##########          Plot                 ##########################
+
+        self.parser_plot = self.subparsers.add_parser("plot", help="Plot Biological abundances in a sec")
+
+        self.parser_plot.add_argument("-f", type=str, help="A biological abundance file produced by RayMeta")
+        self.parser_plot.add_argument("-m", type=float, help="Minimum taxon proportion to consider (default=0.00001",
+                                      required=False, default=0.00001)
+        self.parser_plot.add_argument("-t", type=str, help="File type: db or taxonomy. Dafault = taxonomy",
+                                      required=False, default="taxonomy")
+        self.parser_plot.add_argument("-value", type=bool, help="Show values for each bar", required=False,
+                                      default=False)
+
 
         #parse the args...
         self.Arguments = vars(self.parser.parse_args(args))
