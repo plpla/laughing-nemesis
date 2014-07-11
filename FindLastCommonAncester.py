@@ -80,6 +80,8 @@ def executeLCA(contigs, tree, converter, verbosity):
         numberOfId = len(idList)
         #3 cases: 0 id, 1 id and 2 id or more
         if numberOfId == 0:
+            if verbosity:
+                sys.stderr.write("Case where there is only 0 match:\n")
             contigs[contig].LCA_id = "No color"
             contigs[contig].LCA_name = "Unknown"
         if numberOfId == 1:
@@ -114,10 +116,12 @@ def executeLCA(contigs, tree, converter, verbosity):
                     sys.stderr.write(idList[index].getSequenceName()+"\n")
                 try:
                     lca = int(idList[index].getSequenceName().split('|')[1])
-                except IndexError:
+                except (IndexError, ValueError) as e:
+                    if verbosity:
+                        sys.stderr.write("An error caused by the genome name was handled: %s" % e)
                     lca = 0
                     index += 1
-                    continue    #TODO: This section is messy... Do some clean code bro!
+                    continue
                 validity = converter.genomeIsValid(lca)
                 if verbosity:
                     sys.stderr.write("id %s is valid: %s\n" % (lca, validity))

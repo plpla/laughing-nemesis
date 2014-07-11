@@ -24,6 +24,11 @@ FindContigsIdWithBiologicalAbundance.py
 
 Identification of the X best matching sequences for each assembled and coloried contig
 
+PlotBiologicalAbundance.py
+--------------------------
+
+Quickly plot any taxonomic distribution file.
+
 
 Code repositorie
 ================
