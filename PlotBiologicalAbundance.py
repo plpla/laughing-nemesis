@@ -24,6 +24,20 @@ def read_taxonomy_file(file_name, minimum_proportion):
             data[taxon_name] = taxon_proportion
     return data
 
+
+def read_db_file(file_name, minimum_proportion):
+    data = {}
+    for line in open(file_name):
+        if line[0] == '#':
+            continue
+        taxon_name = line.split("\t")[0]
+        taxon_proportion = convert_exponential_notation(line.split("\t")[1])
+        if taxon_proportion >= minimum_proportion:
+            data[taxon_name] = taxon_proportion
+    return data
+
+
+
 def convert_exponential_notation(exponential_exp):
     if "e" in exponential_exp:
         num = float(exponential_exp.split("e")[0])
@@ -49,7 +63,7 @@ def stacked_bar_plot_single_simple(data, show_value):
     locs, labels = mpl.xticks(ind+width/2., taxon_name)
     mpl.setp(labels, rotation=90)
     mpl.yticks(np.arange(0, max(taxon_value), max(taxon_value)/10))
-    if(matplotlib.__version__ >="1.3.1"):
+    if matplotlib.__version__ >="1.3.1":
         mpl.tight_layout()
     if show_value:
         for pos, value in zip(ind, taxon_value):
@@ -57,17 +71,11 @@ def stacked_bar_plot_single_simple(data, show_value):
     mpl.show()
 
 
-
-
-        #for axis rotation:
+#for axis rotation:
 #http://stackoverflow.com/questions/10998621/rotate-axis-text-in-python-matplotlib
 
 
-def read_db_file(file_name):
-    raise NotImplementedError
-
-
-if __name__=="__main__":
+if __name__ == "__main__":
     """
     New tool to plot Biological abundance directly from Ray output.
     Objective is to obtain a graph in less than a second
