@@ -6,7 +6,7 @@ It uses the output of MetaRay and some files that are used by Ray...
 For help on how to use this program: FindLastCommonAncester.py -h
 """
 
-import sys
+
 import os
 import Modules.OptionParser as OptionParser
 import Modules.Taxon as Taxon
@@ -14,9 +14,9 @@ import Modules.GenomesToTaxon as GenomesToTaxon
 from Modules.FileUtility import *
 
 ######################
-#Probably the only thing you could modify in the code!
-ConverterBinaryFile="Data/Converter.bin"
-TreeBinaryFile = "Data/Tree.bin"
+#Changes these values if you want the files to be saved somewhere else than in the Data directory of the script
+ConverterBinaryFile=os.path.dirname(os.path.realpath(sys.argv[0]))+"/Data/Converter.bin"
+TreeBinaryFile = os.path.dirname(os.path.realpath(sys.argv[0]))+"/Data/Tree.bin"
 ######################
 
 possible_taxonomic_level=["species", "phylum", "order", "species group", "kingdom", "class", "genus", "family",
@@ -101,14 +101,13 @@ def executeLCA(contigs, tree, converter, verbosity):
                     node = tree.getNode(contigs[contig].LCA_id)
                     contigs[contig].LCA_name = node.getTaxonName().getName()
                 else:
-                    contigs[contig].LCA_id = "Invalid id"
+                    contigs[contig].LCA_id = "Invalid id ("+str(id)+")"
                     contigs[contig].LCA_name = "Unknown"
                     if verbosity:
                         sys.stderr.write("NOT VALID\n")
             else:
                 contigs[contig].LCA_id = "No gi"
                 contigs[contig].LCA_name = "Unknown"
-                sys.stderr.write(contigs[contig].getName())    # DERNIERE LIGNE MODIFIE
         if numberOfId > 1:
             if verbosity:
                 sys.stderr.write("Case where there is %s match\n" % numberOfId)
