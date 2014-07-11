@@ -5,6 +5,7 @@ import sys
 from Modules.OptionParser import OptionParser
 import numpy as np
 import matplotlib.pyplot as mpl
+import matplotlib
 
 
 
@@ -48,7 +49,8 @@ def stacked_bar_plot_single_simple(data, show_value):
     locs, labels = mpl.xticks(ind+width/2., taxon_name)
     mpl.setp(labels, rotation=90)
     mpl.yticks(np.arange(0, max(taxon_value), max(taxon_value)/10))
-    mpl.tight_layout()
+    if(matplotlib.__version__ >="1.3.1"):
+        mpl.tight_layout()
     if show_value:
         for pos, value in zip(ind, taxon_value):
             mpl.text(pos + 0.5*width, value, str(value)[0:6], ha='center', va='bottom', rotation=90)
