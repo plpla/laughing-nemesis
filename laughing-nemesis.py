@@ -4,24 +4,26 @@ __version__ = 0.1
 
 import sys
 from Modules.OptionParser import OptionParser
-from FindLastCommonAncester import *
-from FindContigsIdWithBiologicalAbundance import *
-from PlotBiologicalAbundance import *
+
+
+
 
 
 if __name__ == "__main__":
-    parser = OptionParser.OptionParser(sys.argv[1:])
+    parser = OptionParser(sys.argv[1:])
     args = parser.getArguments()
 
 
     ########            PREPARE     #################
     if sys.argv[1] == "prepare":
+        from FindLastCommonAncester import *
         if args['t'] and args['f'] and args['n']:
             prepareData(args)
 
 
     ########           LCA              ###################
     if sys.argv[1] == "lca" and args['d'] and args['c']:
+        from FindLastCommonAncester import *
         if args['r'] is not None and not args['r'] in possible_taxonomic_level:
             sys.stderr.write("Bad taxonomic level. Possible choices are:\n %s\n" % possible_taxonomic_level)
             sys.exit(0)
@@ -43,6 +45,7 @@ if __name__ == "__main__":
 
 
     ################       IDENTIFY     ###################
+    from FindContigsIdWithBiologicalAbundance import *
     if sys.argv[1] == "identify":
         directory = args["d"]
         numberOfBestMatch = args["b"]
@@ -76,6 +79,7 @@ if __name__ == "__main__":
 
     ############           PLOT_single           #########################
     if sys.argv[1] == "plot":
+        from PlotBiologicalAbundance import *
         data = {}
         if args["t"] == "taxonomy":
             data = read_taxonomy_file(args["f"], args["m"])

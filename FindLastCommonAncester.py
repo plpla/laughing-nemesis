@@ -26,6 +26,11 @@ possible_taxonomic_level=["species", "phylum", "order", "species group", "kingdo
 
 def prepareData(args):
     sys.stderr.write("Preparing data...\n")
+    data_path = os.path.dirname(os.path.realpath(sys.argv[0]))+"/Data"
+    if os.path.exists(data_path) and os.path.isdir(data_path):
+        pass
+    else:
+        os.mkdir(data_path)
     tree = Taxon.TaxonomicTree()
     tree.readTreeOfLife(args['t'])
     tree.addTaxonName(args['n'])
