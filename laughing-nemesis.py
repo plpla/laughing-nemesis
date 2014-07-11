@@ -6,14 +6,21 @@ import sys
 from Modules.OptionParser import OptionParser
 from FindLastCommonAncester import *
 from FindContigsIdWithBiologicalAbundance import *
+from PlotBiologicalAbundance import *
 
 
 if __name__ == "__main__":
     parser = OptionParser.OptionParser(sys.argv[1:])
     args = parser.getArguments()
+
+
+    ########            PREPARE     #################
     if sys.argv[1] == "prepare":
         if args['t'] and args['f'] and args['n']:
             prepareData(args)
+
+
+    ########           LCA              ###################
     if sys.argv[1] == "lca" and args['d'] and args['c']:
         if args['r'] is not None and not args['r'] in possible_taxonomic_level:
             sys.stderr.write("Bad taxonomic level. Possible choices are:\n %s\n" % possible_taxonomic_level)
@@ -33,6 +40,9 @@ if __name__ == "__main__":
             out_by_max_depth(contigs, tree, args["r"])
         else:
             out_by_contig(contigs)
+
+
+    ################       IDENTIFY     ###################
     if sys.argv[1] == "identify":
         directory = args["d"]
         numberOfBestMatch = args["b"]
@@ -62,6 +72,18 @@ if __name__ == "__main__":
                 biologicalAbundanceContigs[contigs].selectBestIdentifications(numberOfBestMatch)
     #Last step: Write to stdout!
         showTSV(biologicalAbundanceContigs)
+
+
+    ############           PLOT_single           #########################
+    if sys.argv[1] == "plot":
+        data = {}
+        if args["t"] == "taxonomy":
+            data = read_taxonomy_file(args["f"], args["m"])
+        elif args["t"] == "db":
+            data = read_db_file(args["f"])
+        else:
+            raise ValueError("The file type specified is invalid. Must be 'taxonomy' or 'db'")
+        stacked_bar_plot_single_simple(data, args["value"])
 
 
 
