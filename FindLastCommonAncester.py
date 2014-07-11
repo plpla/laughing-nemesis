@@ -25,6 +25,10 @@ possible_taxonomic_level=["species", "phylum", "order", "species group", "kingdo
 
 
 def prepareData(args):
+    """
+    Construct a tree and a converter then dump them in a binary file.
+    Saves a lot of time and some disk space.
+    """
     sys.stderr.write("Preparing data...\n")
     data_path = os.path.dirname(os.path.realpath(sys.argv[0]))+"/Data"
     if os.path.exists(data_path) and os.path.isdir(data_path):
@@ -42,16 +46,25 @@ def prepareData(args):
     converter.dumpConverter(ConverterBinaryFile)
 
 def prepareTreeOfLife():
+    """
+    Load the pickled tree of life
+    """
     tree = Taxon.TaxonomicTree()
     tree.loadTree(TreeBinaryFile)
     return tree
 
 def prepareGenomeToTaxonConverter():
+    """
+    Load the pickled converter
+    """
     converter = GenomesToTaxon.GenomesToTaxon()
     converter.loadConverter(ConverterBinaryFile)
     return converter
 
 def findContigsID(args):
+    """"
+    Similare to laughing-nemesis identify and return a structure of contigs and their identifications
+    """
     sys.stderr.write("Searching the best matches for each contigs based on Ray output\n")
     if args['i']:
         contigsIDfile = readPathsFile(args['i'])
@@ -77,6 +90,14 @@ def findContigsID(args):
 Need to redesign so that special cases are sent to a file
 """
 def executeLCA(contigs, tree, converter, verbosity):
+    """
+    Search the lca of contigs
+    :param contigs: A dictionnary of contigs that were previously identified
+    :param tree: The taxonomic tree
+    :param converter: The genome to taxon converter
+    :param verbosity: If true will trace the LCA search to stderr
+    :return: The contigs dictionnary with the LCA.
+    """
     lca = -1
     for contig in contigs:
         if verbosity:
@@ -215,6 +236,11 @@ def out_by_max_depth(contigs, tree, level):
 
 
 def out_by_contig(contigs):
+    """
+    Simple tsv output 3 columns
+    :param contigs: The contigs to out.
+    :return: None
+    """
     for contig in contigs:
         print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
 

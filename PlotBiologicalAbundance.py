@@ -14,6 +14,13 @@ import matplotlib
 
 
 def read_taxonomy_file(file_name, minimum_proportion):
+    """
+    Read a 4 column file produced by Ray.
+    Columns are: #TaxonIdentifier        TaxonName       TaxonRank       TaxonProportion
+    :param file_name: The name of the file to load (str)
+    :param minimum_proportion: Minimum proportion required to plot a taxon
+    :return: A dictionnary of string and values
+    """
     data = {}
     for line in open(file_name):
         if line[0] == '#':
@@ -26,6 +33,13 @@ def read_taxonomy_file(file_name, minimum_proportion):
 
 
 def read_db_file(file_name, minimum_proportion):
+    """
+    Read a 2 column file produced by Ray.
+    Columns are: #Name   Proportion
+    :param file_name: The name of the file to load (str)
+    :param minimum_proportion: Minimum proportion required to plot a taxon
+    :return: A dictionnary of string and values
+    """
     data = {}
     for line in open(file_name):
         if line[0] == '#':
@@ -39,6 +53,11 @@ def read_db_file(file_name, minimum_proportion):
 
 
 def convert_exponential_notation(exponential_exp):
+    """
+    Convert a string representing a float to a float
+    :param exponential_exp: Sting of numbers and 'e'
+    :return:A float
+    """
     if "e" in exponential_exp:
         num = float(exponential_exp.split("e")[0])
         expo = int(exponential_exp.split('e')[1])
@@ -49,6 +68,13 @@ def convert_exponential_notation(exponential_exp):
 
 
 def stacked_bar_plot_single_simple(data, show_value):
+    """
+    Plot a single taxonomic data set.
+    Require matplotlib and numpy
+    :param data: The data set to plot
+    :param show_value: Bool. True if you want to show values over each bar
+    :return: Nothing but will open a plot window.
+    """
     number_of_sample = len(data)
     taxon_name = []
     taxon_value = []
