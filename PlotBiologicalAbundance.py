@@ -100,7 +100,8 @@ def stacked_bar_plot_single_sample(data, show_value, output):
 
 
 def stacked_bar_plot_multi_sample(data, show_value, output):
-    color_list = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'k']
+    if show_value:
+        sys.stderr.write("Warning: Can't show values for stacked plot\n")
     taxon_values = {}
     current_index = 1
     sample_list = []
@@ -126,9 +127,7 @@ def stacked_bar_plot_multi_sample(data, show_value, output):
     previous_taxon = []
     taxon_names = []
     graph_list = []
-    color_index=0.0
-    graph_max_value = -1
-    #TODO: use http://matplotlib.org/api/colors_api.html for color and do some nice plot!
+    color_index = 0.0
     for taxon in taxon_values:
         taxon_names.append(taxon)
 
@@ -165,32 +164,83 @@ def stacked_bar_plot_multi_sample(data, show_value, output):
     else:
         ppl.savefig(output)
 
+def compare_bar_plot_multi_sample(data, show_value, output):
+    taxon_values = {}
+    current_index = 1
+    sample_list = []
+    all_values = []
+    taxon_names = []
+    width = 0.02
+    for sample in data:
+        sample_list.append(sample)
+        for taxon in data[sample]:
+            if taxon in taxon_values:
+                taxon_values[taxon].append(data[sample][taxon])
+            else:
+                taxon_values[taxon] = []
+                i = 1
+                while i < current_index:
+                    taxon_values[taxon].append(0)
+                    i += 1
+                taxon_values[taxon].append(data[sample][taxon])
+        for taxon in taxon_values:
+            while len(taxon_values[taxon]) < current_index:
+                taxon_values[taxon].append(0)
+        current_index += 1
+    number_of_sample = len(sample_list)
+    ind = np.arange(number_of_sample)
+    color_index = 0
+    for taxon in taxon_values:
+        taxon_names.append(taxon)
+        all_values += taxon_values[taxon]
+        ppl.bar(ind+(width*color_index), taxon_values[taxon], width, label=taxon,
+                color=mpl.cm.Set1(1.*color_index/len(taxon_values)))
+        color_index += 1
+
+    fontP = FontProperties()
+    fontP.set_size('small')
+    ppl.ylabel("Proportion")
+    ppl.title("Taxonomic repartition")
+    ppl.yticks(np.arange(0, max(all_values), max(all_values)/10))
+    locs, labels = ppl.xticks(ind+width/2., sample_list)
+    ppl.setp(labels, rotation=90)
+    ppl.legend(loc='upper center', ncol=len(taxon_names) % 6, bbox_to_anchor=(0.5, -0.33), fancybox=True, shadow=True,
+               prop=fontP)
+    if mpl.__version__ >="1.3.1":
+        ppl.tight_layout()
+    #if show_value:
+    #    for pos, value in zip(ind, taxon_value):
+    #        ppl.text(pos + 0.5*width, value, str(value)[0:6], ha='center', va='bottom', rotation=90)
+    if output is None:
+        ppl.show()
+    else:
+        ppl.savefig(output)
+
+
+
+
 
 
 def read_taxonomy_multi_file(file_name, minimum_proportion):
-    #Will not work because samples all have the same name!!!
     data = {}
     for taxon_file in open(file_name, 'r'):
         taxon_file_name = taxon_file.rstrip('\n')
         data[taxon_file_name] = read_taxonomy_file(taxon_file_name, minimum_proportion)
-        print(taxon_file_name)
-        print(data[taxon_file_name])
     return data
 
 
 def read_db_multi_file(file_name, minimum_proportion):
-    raise NotImplementedError
-    #Will not work because samples all have the same name!!!
     data = {}
     for taxon_file in open(file_name,'r'):
-        taxon_file_name = taxon_file.split('/')[-1]
-        data[taxon_file_name] = read_db_file(taxon_file, minimum_proportion)
+        taxon_file_name = taxon_file.rstrip('\n')
+        data[taxon_file_name] = read_db_file(taxon_file_name, minimum_proportion)
     return data
 
 
 #for axis rotation:
 #http://stackoverflow.com/questions/10998621/rotate-axis-text-in-python-matplotlib
-
+#for legends:
+#http://matplotlib.org/users/legend_guide.html
 
 if __name__ == "__main__":
     """
@@ -222,6 +272,9 @@ if __name__ == "__main__":
             data = read_db_multi_file(args["f"], args["m"])
         if args["stacked"] is True:
             stacked_bar_plot_multi_sample(data, args["value"], args["o"])
+        else:
+            compare_bar_plot_multi_sample(data, args["value"], args["o"])
+
 
 
 
