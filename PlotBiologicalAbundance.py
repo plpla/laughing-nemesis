@@ -4,9 +4,8 @@ __date__ = "2014-07-09"
 import sys
 from Modules.OptionParser import OptionParser
 import numpy as np
-import matplotlib.pyplot as mpl
-import matplotlib
-
+import matplotlib as mpl
+from matplotlib.font_manager import FontProperties
 
 
 
@@ -67,7 +66,7 @@ def convert_exponential_notation(exponential_exp):
     return converted_number
 
 
-def stacked_bar_plot_single_simple(data, show_value):
+def stacked_bar_plot_single_sample(data, show_value, output):
     """
     Plot a single taxonomic data set.
     Require matplotlib and numpy
@@ -83,18 +82,110 @@ def stacked_bar_plot_single_simple(data, show_value):
         taxon_value.append(data[taxon])
     ind = np.arange(number_of_sample)
     width = 0.75    # could be optimized
-    plot = mpl.bar(ind, taxon_value, width, color='g')
-    mpl.ylabel("Proportion")
-    mpl.title("Taxonomic repartition")
+    plot = ppl.bar(ind, taxon_value, width, color='g')
+    ppl.ylabel("Proportion")
+    ppl.title("Taxonomic repartition")
     locs, labels = mpl.xticks(ind+width/2., taxon_name)
-    mpl.setp(labels, rotation=90)
-    mpl.yticks(np.arange(0, max(taxon_value), max(taxon_value)/10))
-    if matplotlib.__version__ >="1.3.1":
-        mpl.tight_layout()
+    ppl.setp(labels, rotation=90)
+    ppl.yticks(np.arange(0, max(taxon_value), max(taxon_value)/10))
+    if mpl.__version__ >="1.3.1":
+        ppl.tight_layout()
     if show_value:
         for pos, value in zip(ind, taxon_value):
-            mpl.text(pos + 0.5*width, value, str(value)[0:6], ha='center', va='bottom', rotation=90)
-    mpl.show()
+            ppl.text(pos + 0.5*width, value, str(value)[0:6], ha='center', va='bottom', rotation=90)
+    if output is None:
+        ppl.show()
+    else:
+        ppl.savefig(output)
+
+
+def stacked_bar_plot_multi_sample(data, show_value, output):
+    color_list = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'k']
+    taxon_values = {}
+    current_index = 1
+    sample_list = []
+    for sample in data:
+        sample_list.append(sample)
+        for taxon in data[sample]:
+            if taxon in taxon_values:
+                taxon_values[taxon].append(data[sample][taxon])
+            else:
+                taxon_values[taxon] = []
+                i = 1
+                while i < current_index:
+                    taxon_values[taxon].append(0)
+                    i += 1
+                taxon_values[taxon].append(data[sample][taxon])
+        for taxon in taxon_values:
+            while len(taxon_values[taxon]) < current_index:
+                taxon_values[taxon].append(0)
+        current_index += 1
+    number_of_sample = len(sample_list)
+    ind = np.arange(number_of_sample)
+    width = 0.35
+    previous_taxon = []
+    taxon_names = []
+    graph_list = []
+    color_index=0.0
+    graph_max_value = -1
+    #TODO: use http://matplotlib.org/api/colors_api.html for color and do some nice plot!
+    for taxon in taxon_values:
+        taxon_names.append(taxon)
+
+
+        if len(previous_taxon) == 0:
+            graph_list.append(ppl.bar(ind, taxon_values[taxon], width, label=taxon,
+                                      color=mpl.cm.Set1(1.*color_index/len(taxon_values))))
+            previous_taxon = taxon_values[taxon]
+            color_index += 1
+
+        else:
+            graph_list.append(ppl.bar(ind, taxon_values[taxon], width, bottom=previous_taxon, label=taxon,
+                              color=mpl.cm.Paired(1.*color_index/len(taxon_values))))
+            color_index += 1
+            list_index = 0
+            for j in taxon_values[taxon]:
+                previous_taxon[list_index] += j
+                list_index += 1
+    fontP = FontProperties()
+    fontP.set_size('small')
+    ppl.ylabel("Proportion")
+    ppl.title("Taxonomic repartition")
+    ppl.yticks(np.arange(0, max(previous_taxon), 0.05))
+    locs, labels = ppl.xticks(ind+width/2., sample_list)
+    ppl.setp(labels, rotation=90)
+    ppl.legend(loc='upper center', bbox_to_anchor=(0.5, -0.33), ncol=len(taxon_names)/6, fancybox=True, shadow=True, prop=fontP)
+    if mpl.__version__ >="1.3.1":
+        ppl.tight_layout()
+    #if show_value:
+    #    for pos, value in zip(ind, taxon_value):
+    #        ppl.text(pos + 0.5*width, value, str(value)[0:6], ha='center', va='bottom', rotation=90)
+    if output is None:
+        ppl.show()
+    else:
+        ppl.savefig(output)
+
+
+
+def read_taxonomy_multi_file(file_name, minimum_proportion):
+    #Will not work because samples all have the same name!!!
+    data = {}
+    for taxon_file in open(file_name, 'r'):
+        taxon_file_name = taxon_file.rstrip('\n')
+        data[taxon_file_name] = read_taxonomy_file(taxon_file_name, minimum_proportion)
+        print(taxon_file_name)
+        print(data[taxon_file_name])
+    return data
+
+
+def read_db_multi_file(file_name, minimum_proportion):
+    raise NotImplementedError
+    #Will not work because samples all have the same name!!!
+    data = {}
+    for taxon_file in open(file_name,'r'):
+        taxon_file_name = taxon_file.split('/')[-1]
+        data[taxon_file_name] = read_db_file(taxon_file, minimum_proportion)
+    return data
 
 
 #for axis rotation:
@@ -109,17 +200,32 @@ if __name__ == "__main__":
     """
     parser = OptionParser(sys.argv[1:])
     args = parser.getArguments()
-    args = parser.getArguments()
+    if args["o"]is not None:
+        mpl.use("Agg")
+    global ppl
+    import matplotlib.pyplot as ppl
     if sys.argv[1] != "plot":
         raise RuntimeError("The only option available in this script is 'plot'")
     data = {}
-    if args["t"] == "taxonomy":
-        data = read_taxonomy_file(args["f"], args["m"])
-    elif args["t"] == "db":
-        data = read_db_file(args["f"])
-    else:
-        raise ValueError("The file type specified is invalid. Must be 'taxonomy' or 'db'")
-    stacked_bar_plot_single_simple(data, args["value"])
+    if args["f"] is not None and args["multi"]==False:
+        if args["t"] == "taxonomy":
+            data = read_taxonomy_file(args["f"], args["m"])
+        elif args["t"] == "db":
+            data = read_db_file(args["f"])
+        else:
+            raise ValueError("The file type specified is invalid. Must be 'taxonomy' or 'db'")
+        stacked_bar_plot_single_sample(data, args["value"], args["o"])
+    if args["f"] is not None and args["multi"] is True:
+        if args["t"] == "taxonomy":
+            data = read_taxonomy_multi_file(args["f"], args["m"])
+        if args["t"] == "db":
+            data = read_db_multi_file(args["f"], args["m"])
+        if args["stacked"] is True:
+            stacked_bar_plot_multi_sample(data, args["value"], args["o"])
+
+
+
+
 
 
 

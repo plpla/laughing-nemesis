@@ -72,6 +72,13 @@ class OptionParser():
                                       required=False, default="taxonomy")
         self.parser_plot.add_argument("-value", type=bool, help="Show values for each bar", required=False,
                                       default=False)
+        self.parser_plot.add_argument("-multi", type=bool, help="If true, the -f file contains a list of biological"+
+                                                                "abundance file to plot in the same figure",
+                                      required=False, default=False)
+        self.parser_plot.add_argument("-stacked", type=bool, help="Create a stacked bar graph instead of the"+
+                                                                  "normal graph", required=False, default=False)
+        self.parser_plot.add_argument("-o", type=str, help="Name of the output file. Will not open a new window",
+                                      required=False, default=None)
 
 
         #parse the args...
