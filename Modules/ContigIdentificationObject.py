@@ -39,7 +39,7 @@ class ContigIdentificationObject(object):
         if self.matchesInContig>0 and ColoredKmers>0 and LengthInKmer>0:
             #print("using real pl-value");
             #print("MatchesInContig"+str(self.matchesInContig)+"ColoredKmer"+str(ColoredKmers)+"length"+str(LengthInKmer))
-            plvalue=((self.matchesInContig*self.matchesInContig)/ColoredKmers)/float(LengthInKmer)
+            plvalue = ((self.matchesInContig*self.matchesInContig)/ColoredKmers)/float(LengthInKmer)
         #print(plvalue);
         else:
             plvalue=0

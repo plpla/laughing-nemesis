@@ -214,14 +214,18 @@ def out_by_max_depth(contigs, tree, level):
     """
     for contig in contigs:
         if contigs[contig].LCA_name == 'Unknown':
-            print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
+            print("%s\t%s\t%s\t%s\t%s" % (contig, contigs[contig].getLengthInKmer(),
+                                          contigs[contig].get_coverage_detph(), contigs[contig].LCA_id,
+                                          contigs[contig].LCA_name))
             continue
         taxon = tree.getNode(contigs[contig].LCA_id)
         #3 possible cases: the taxonomic level is the one selecter
         # the taxonomic level is too high (have to search for a taxon at the wanted level)
         # the taxonomic level is too low (we will find root before a taxon at the wanted level)
         if taxon.TaxonName.Rank == level:
-            print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
+            print("%s\t%s\t%s\t%s\t%s" % (contig,contigs[contig].getLengthInKmer(),
+                                          contigs[contig].get_coverage_detph(), contigs[contig].LCA_id,
+                                          contigs[contig].LCA_name))
         else:
             #We search for either root or a taxon at the wanted level
             while True:
@@ -232,7 +236,8 @@ def out_by_max_depth(contigs, tree, level):
                 if taxon.TaxonName.Rank == level:
                     #At this point we have reached the wanted level
                     break
-            print("%s\t%s\t%s" % (contig, taxon.ID, taxon.TaxonName.Name))
+            print("%s\t%s\t%s\t%s\t%s" % (contig, contigs[contig].getLengthInKmer(),
+                                          contigs[contig].get_coverage_detph(), taxon.ID, taxon.TaxonName.Name))
 
 
 def out_by_contig(contigs):
@@ -241,8 +246,11 @@ def out_by_contig(contigs):
     :param contigs: The contigs to out.
     :return: None
     """
+    print("Contig-name\tContig_length_in_kmers\tContig_mode_kmer_depth\tLCA_taxon_id\tLCA_name")
     for contig in contigs:
-        print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
+        print("%s\t%s\t%s\t%s\t%s" % (contig, contigs[contig].getLengthInKmer(),
+                                      contigs[contig].get_coverage_detph(), contigs[contig].LCA_id,
+                                      contigs[contig].LCA_name))
 
 
 if __name__=="__main__":

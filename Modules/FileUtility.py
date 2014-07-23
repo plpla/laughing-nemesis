@@ -86,7 +86,8 @@ def readContigsTSVfile(pathToFile):
             name = lines.split()[0]
             length = int(lines.split()[2])
             coloredKmer = int(lines.split()[3])
-            newBiologicalAbundanceContig = BiologicalAbundanceContigObject(name,length,coloredKmer)
+            coverage_depth = int(lines.split()[5])
+            newBiologicalAbundanceContig = BiologicalAbundanceContigObject(name,length,coloredKmer, coverage_depth)
             #print(name);
             biologicalAbundanceContigs[name] = newBiologicalAbundanceContig
     return biologicalAbundanceContigs

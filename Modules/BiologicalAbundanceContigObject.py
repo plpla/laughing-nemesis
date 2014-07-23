@@ -5,8 +5,8 @@ from ContigIdentificationObject import *
 
 class BiologicalAbundanceContigObject(ContigObject):
     "Class representing a contig and the information about it from RayMeta"
-    def __init__(self, name="", lengthInKmer=0, coloredKmers=0):
-        ContigObject.__init__(self, name, lengthInKmer, coloredKmers)
+    def __init__(self, name="", lengthInKmer=0, coloredKmers=0, coverage_depth=0):
+        ContigObject.__init__(self, name, lengthInKmer, coloredKmers, coverage_depth)
         self.contigIdentifications = []
         self.LCA_id = ""
         self.LCA_name = ""
