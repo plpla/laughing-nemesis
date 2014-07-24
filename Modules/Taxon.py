@@ -170,7 +170,7 @@ class TaxonomicTree():
             if self.nodeExist(id):
                 self.getNodes()[id].getTaxonName().setAll(name, rank)
             else:
-                raise ValueError("Taxon %s is missing" % id)
+                sys.stderr.write("Warning: Taxon %s is missing from tree\n" % id)
 
 
 
