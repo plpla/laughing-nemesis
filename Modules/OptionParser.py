@@ -25,27 +25,46 @@ class OptionParser():
                                          required=True)
         self.parser_prepare.add_argument('-f', type=str, help='The GenomeToTaxon.tsv file', default=None,
                                          required=True)
+
         ##########           lca                #######################
         self.parser_lca = self.subparsers.add_parser('lca', help='Find the last common ancester of each contigs')
+
         self.parser_lca.add_argument('-d', type=str, help='The biological abundance directory',
                                      required=True)
-        self.parser_lca.add_argument('-c', type=str, help='The contig file (.fasta)',
-                                     required=True)
-        self.parser_lca.add_argument('-i', type=str, help='File containing a list of contigIdentification file',
+
+        self.parser_lca.add_argument('-c', type=str, help='The contig file (.fasta) to search only for these contigs (not implemented yet)',
                                      required=False)
+
+        self.parser_lca.add_argument('-i', type=str, help='File containing a list of contigIdentification file. This could produce strange results',
+                                     required=False)
+
+        self.parser_lca.add_argument('-t', type=str, help='The TreeOfLife-Edges.tsv file. Usually located in the Taxonomy repository.',
+                                     default=None, required=True)
+
         self.parser_lca.add_argument('-b', type=int, help='Maximum number of best match to consider. ' +
-                                                          'Impact compute time (default 10)',
-                                     default=10, required=False)
-        self.parser_lca.add_argument("-path", help="File containing the path to different ContigIdentification.tsv" +
-                                     " files", type=str, required=False)
-        self.parser_lca.add_argument("-r", help="Maximum taxonomic level to identify contig" +
-                                                "(min = root, max= subspecies)" +
-                                     "Can cause the lost of some result due to unclassified taxon",
-                                     type=str, required=False)
-        #The -r option will probably cause some strange behavior for 2 reasons: Unclassified taxon and taxon identified
+                                                          'Impact compute time. (default 1000)',
+                                     default=1000, required=False)
+
+        self.parser_lca.add_argument('-o', type=str, help='Stdout format. NOT stdout file name. Default: historical',
+                                     default="historical", choices=['lca', 'historical'], required=False)
+
+        self.parser_lca.add_argument('-e', type=str, help="Type of LCA to return. valid, total or level. Level is required for -l. Default: valid",
+                                    default='valid', required=False, choices=['valid', 'total', 'level'])
+
+        self.parser_lca.add_argument("-l", help="Taxonomic level at which the LCA will be called." +
+                                                "(min = phylum, max= species)." +
+                                     "Can cause the lost of some result due to unclassified taxon. " +
+                                     "Will return the match with the highest scrore if match at level is higher than the LCA",
+                                     type=str, required=False,
+                                     choices=["phylum", "class", "order", "family", "genus", "species"])
+
+        self.parser_lca.add_argument("-s",
+                                     help="Minimal score [0-1] for LCA call. See developper for info on score (will eventually be in the doc). Default: 0.9",
+                                     type=float, required=False, default= 0.9)
+        #The -s option will probably cause some strange behavior for 2 reasons: Unclassified taxon and taxon identified
         #at a deeper taxonomic level than asked depth
 
-        self.parser_lca.add_argument("-v", help="Increase verbosity (dafault False)",
+        self.parser_lca.add_argument("-v", help="Increase verbosity. Not fully implemented. Default: False",
                                  type=bool, default=False, required=False)
 
         ##########        Identify                ######################

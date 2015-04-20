@@ -7,8 +7,8 @@ class ContigObject(object):
 
     def __init__(self, name="", length_in_kmer=0, colored_kmers=0, coverage_depth=0):
         self.name = name
-        self.lengthInKmer= length_in_kmer
-        self.coloredKmers= colored_kmers
+        self.lengthInKmer = length_in_kmer
+        self.coloredKmers = colored_kmers
         self.mode_kmer_coverage_depth = coverage_depth
 
     def getName(self):

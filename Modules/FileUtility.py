@@ -2,7 +2,7 @@
 
 import sys
 import glob
-from Modules.BiologicalAbundanceContigObject import *
+from BiologicalAbundanceContigObject import *
 
 def checkFiles(listOfFile):
     for i in listOfFile:

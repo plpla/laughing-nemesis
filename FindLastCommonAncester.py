@@ -10,69 +10,53 @@ For help on how to use this program: FindLastCommonAncester.py -h
 import os
 import Modules.OptionParser as OptionParser
 import Modules.Taxon as Taxon
-import Modules.GenomesToTaxon as GenomesToTaxon
+import Modules.GenomesToTaxon_sql as gtt
 from Modules.FileUtility import *
-
-######################
-#Changes these values if you want the files to be saved somewhere else than in the Data directory of the script
-ConverterBinaryFile=os.path.dirname(os.path.realpath(sys.argv[0]))+"/Data/Converter.bin"
-TreeBinaryFile = os.path.dirname(os.path.realpath(sys.argv[0]))+"/Data/Tree.bin"
-######################
 
 possible_taxonomic_level=["species", "phylum", "order", "species group", "kingdom", "class", "genus", "family",
                           "subspecies"]
+possible_taxonomic_level=["phylum", "class", "order", "family", "genus", "species"]
 
 
-
-def prepareData(args):
+def prepare_data(args):
     """
-    Construct a tree and a converter then dump them in a binary file.
-    Saves a lot of time and some disk space.
+    Construct the DB and check the tree
     """
     sys.stderr.write("Preparing data...\n")
-    data_path = os.path.dirname(os.path.realpath(sys.argv[0]))+"/Data"
-    if os.path.exists(data_path) and os.path.isdir(data_path):
-        pass
-    else:
-        os.mkdir(data_path)
-    tree = Taxon.TaxonomicTree()
-    tree.readTreeOfLife(args['t'])
-    tree.addTaxonName(args['n'])
-    tree.dumpTree(TreeBinaryFile)
-    tree.loadTree(TreeBinaryFile)
-    tree.checkTree()
-    converter = GenomesToTaxon.GenomesToTaxon()
-    converter.prepareConverter(args['f'])
-    converter.dumpConverter(ConverterBinaryFile)
+    sys.stderr.write("Checking the tree")
+    tree = Taxon.Taxonomic_tree()
+    tree.read_tree_of_life(args['t'])
+    tree.check_tree()
+    converter = gtt.Genomes_to_taxon()
+    converter.prepare_converter(args['f'], args['n'])
 
-def prepareTreeOfLife():
+def prepare_tree_of_life(args):
     """
     Load the pickled tree of life
     """
-    tree = Taxon.TaxonomicTree()
-    tree.loadTree(TreeBinaryFile)
+    tree = Taxon.Taxonomic_tree()
+    tree.read_tree_of_life(args['t'])
     return tree
 
-def prepareGenomeToTaxonConverter():
+def prepare_genome_taxon_converter():
     """
     Load the pickled converter
     """
-    converter = GenomesToTaxon.GenomesToTaxon()
-    converter.loadConverter(ConverterBinaryFile)
+    converter = gtt.Genomes_to_taxon()
     return converter
 
-def findContigsID(args):
+def find_contigs_ID(args):
     """"
     Similare to laughing-nemesis identify and return a structure of contigs and their identifications
     """
     sys.stderr.write("Searching the best matches for each contigs based on Ray output\n")
     if args['i']:
-        contigsIDfile = readPathsFile(args['i'])
+        contigs_id_file = readPathsFile(args['i'])
     else:
-        contigsIDfile = getPathsFromDirectory(args['d'])
-    checkFiles(contigsIDfile)
+        contigs_id_file = getPathsFromDirectory(args['d'])
+    checkFiles(contigs_id_file)
     contigs = readContigsTSVfile(args['d'])
-    for files in contigsIDfile:
+    for files in contigs_id_file:
         try:
             readContigIdentificationFiles(files, contigs)
         except:
@@ -89,7 +73,7 @@ def findContigsID(args):
 """
 Need to redesign so that special cases are sent to a file
 """
-def executeLCA(contigs, tree, converter, verbosity):
+def execute_LCA(contigs, tree, converter, args):
     """
     Search the lca of contigs
     :param contigs: A dictionnary of contigs that were previously identified
@@ -99,106 +83,35 @@ def executeLCA(contigs, tree, converter, verbosity):
     :return: The contigs dictionnary with the LCA.
     """
     lca = -1
+    num_of_contigs = len(contigs)
+    win_size = num_of_contigs / 100
+    i = 0
+    current = 0
+    sys.stderr.write("\r%s %% contigs done" % current)
     for contig in contigs:
-        if verbosity:
-            sys.stderr.write("Computing %s\n" %contig)
-        idList = contigs[contig].contigIdentifications
-        numberOfId = len(idList)
-        #3 cases: 0 id, 1 id and 2 id or more
-        if numberOfId == 0:
-            if verbosity:
-                sys.stderr.write("Case where there is only 0 match:\n")
-            contigs[contig].LCA_id = "No color"
-            contigs[contig].LCA_name = "Unknown"
-        if numberOfId == 1:
-            if verbosity:
-                sys.stderr.write("Case where there is only 1 match:\n")
-            if idList[0].getSequenceName().split('|')[0] == "gi":
-                if verbosity:
-                    sys.stderr.write(idList[0].getSequenceName()+"\n")
-                id = int(idList[0].getSequenceName().split('|')[1])
-                if converter.genomeIsValid(id):
-                    contigs[contig].LCA_id = converter.convertToTaxon(id)
-                    node = tree.getNode(contigs[contig].LCA_id)
-                    contigs[contig].LCA_name = node.getTaxonName().getName()
-                else:
-                    contigs[contig].LCA_id = "Invalid id ("+str(id)+")"
-                    contigs[contig].LCA_name = "Unknown"
-                    if verbosity:
-                        sys.stderr.write("NOT VALID\n")
+        #sys.stderr.write("Working on "+contig+"\n")
+        contigs[contig].find_lca(tree, converter, args['v'])
+        contigs[contig].clean_contig_identifications()
+        contigs[contig].compute_history(converter, tree)
+        if args['e'] == "valid":
+            contigs[contig].get_taxonomic_lca(args['s'])
+        elif args['e'] == 'total':
+            contigs[contig].refine_lca(tree, converter, args['s'])
+        elif args['e'] == 'level':
+            if args['l'] in possible_taxonomic_level:
+                contigs[contig].set_lca_by_level(args['l'])
             else:
-                contigs[contig].LCA_id = "No gi"
-                contigs[contig].LCA_name = "Unknown"
-        if numberOfId > 1:
-            if verbosity:
-                sys.stderr.write("Case where there is %s match\n" % numberOfId)
-            index = 0
-            lca = 0
-            #1- We set lca to a value that is know to exist in the tree
-            while lca == 0 and index < numberOfId:
-                if verbosity:
-                    sys.stderr.write("Searching LCA starting point with genome: ")
-                    sys.stderr.write(idList[index].getSequenceName()+"\n")
-                try:
-                    lca = int(idList[index].getSequenceName().split('|')[1])
-                except (IndexError, ValueError) as e:
-                    if verbosity:
-                        sys.stderr.write("An error caused by the genome name was handled: %s" % e)
-                    lca = 0
-                    index += 1
-                    continue
-                validity = converter.genomeIsValid(lca)
-                if verbosity:
-                    sys.stderr.write("id %s is valid: %s\n" % (lca, validity))
-                if not validity:
-                    lca = 0
-                    index += 1
-            if not converter.genomeIsValid(lca):
-                contigs[contig].LCA_id = "Unidentified"
-                contigs[contig].LCA_name = "Unknown"
-                # If you are here, you have reached the last possible identification and
-                #  have not found one that is valid.
-            else:
-            #LCA has now a valid value. We can iterate on each entry to find the true lca!
-            #Got a problem in this section with taxon/genome id.
-                id1 = converter.convertToTaxon(lca)
-                for identification in idList:
-                    if identification.getSequenceName().split('|')[0]=="gi":
-                        if verbosity:
-                            sys.stderr.write("Found a GI. Fetching name\n")
-                        id2 = int(identification.getSequenceName().split('|')[1])
-                        if verbosity:
-                            sys.stderr.write("Converting name to taxon id. Checking if valid\n")
-                        if converter.genomeIsValid(id2):
-                            id2 = converter.convertToTaxon(id2)
-                            if verbosity:
-                                sys.stderr.write("Searching the LCA in the tree for %s and %s\n" % (id1, id2))
-                            lca = tree.findLCA(id1, id2)
-                            if verbosity:
-                                sys.stderr.write("Resulting LCA is %s\n" %lca)
-                            id1 = lca
-                        else:
-                            if verbosity:
-                                sys.stderr.write("Sequence %s cant be converted\n" % id2)
-                            continue
-                    else:
-                        if verbosity:
-                            sys.stderr.write("%s , %s there is no GI \n" % (contig, identification.getSequenceName()))
-                        continue #We should do something about it...
-            contigs[contig].LCA_id = lca
-            if tree.nodeExist(contigs[contig].LCA_id):
-                node = tree.getNode(contigs[contig].LCA_id)
-                if verbosity:
-                    sys.stderr.write("Setting %s LCA_name to %s by taxon %s\n" % (contig, node.getTaxonName().getName(),
-                                                                                  node.ID))
-                contigs[contig].LCA_name = node.getTaxonName().getName()
-            else:
-                contigs[contig].LCA_name = "Unknown"
-                #contigs[contig].LCA_name = name
-        #print("%s\t%s\t%s" % (contig, contigs[contig].LCA_id, contigs[contig].LCA_name))
+                ValueError("The level was not specified correctly")
+        else:
+            raise ValueError("-e option has an invalid value")
+        contigs[contig].update_LCA_name_and_rank(converter)
+        i += 1
+        if i % win_size == 0:
+            current += 1
+            sys.stderr.write("\r %s %% contigs done" % current)
+    sys.stderr.write("\n")
     return contigs
-        #id1="";
-        #id2="";
+
 
 #TODO:#Optimize output functions to Fred needs
 
@@ -218,26 +131,45 @@ def out_by_max_depth(contigs, tree, level):
                                           contigs[contig].get_coverage_detph(), contigs[contig].LCA_id,
                                           contigs[contig].LCA_name))
             continue
-        taxon = tree.getNode(contigs[contig].LCA_id)
+        taxon = tree.get_node(contigs[contig].LCA_id)
         #3 possible cases: the taxonomic level is the one selecter
         # the taxonomic level is too high (have to search for a taxon at the wanted level)
         # the taxonomic level is too low (we will find root before a taxon at the wanted level)
-        if taxon.TaxonName.Rank == level:
+        t_name = converter.get_taxon_name(taxon.id)
+        t_rank = converter.get_taxon_rank(taxon.id)
+        if t_rank == level:
             print("%s\t%s\t%s\t%s\t%s" % (contig,contigs[contig].getLengthInKmer(),
                                           contigs[contig].get_coverage_detph(), contigs[contig].LCA_id,
                                           contigs[contig].LCA_name))
         else:
             #We search for either root or a taxon at the wanted level
             while True:
-                if taxon.Parent == "" and taxon.ID == 1:
+                if taxon.parent == "" or taxon.id == 1:
                     #At this point we are at the root
                     break
-                taxon = tree.getNode(taxon.Parent)
-                if taxon.TaxonName.Rank == level:
+                taxon = tree.get_node(taxon.parent)
+                t_name = converter.get_taxon_name(taxon.id)
+                t_rank = converter.get_taxon_rank(taxon.id)
+                if t_rank == level:
                     #At this point we have reached the wanted level
                     break
             print("%s\t%s\t%s\t%s\t%s" % (contig, contigs[contig].getLengthInKmer(),
-                                          contigs[contig].get_coverage_detph(), taxon.ID, taxon.TaxonName.Name))
+                                          contigs[contig].get_coverage_detph(), taxon.id, t_name))
+
+def out_with_history(contigs):
+    header = "Contig-name\tContig_length_in_kmers\tContig_mode_kmer_depth\tTotal_colored_kmer\tLCA_taxon_id\tLCA_name\tLCA_rank\tLCA_score"
+    for level in possible_taxonomic_level:
+        header += "\t"+level+"\t"+level+"_score"
+    print(header)
+    for contig in contigs:
+        line = ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (contig, contigs[contig].getLengthInKmer(),
+                                      contigs[contig].get_coverage_detph(), contigs[contig].coloredKmers, contigs[contig].LCA_id,
+                                      contigs[contig].LCA_name, contigs[contig].LCA_rank, contigs[contig].LCA_score))
+        for level in possible_taxonomic_level:
+            line += "\t"+str(contigs[contig].history[level][2])+"\t"+str(contigs[contig].history[level][1])
+        print(line)
+
+
 
 
 def out_by_contig(contigs):
@@ -246,11 +178,11 @@ def out_by_contig(contigs):
     :param contigs: The contigs to out.
     :return: None
     """
-    print("Contig-name\tContig_length_in_kmers\tContig_mode_kmer_depth\tLCA_taxon_id\tLCA_name")
+    print("Contig-name\tContig_length_in_kmers\tContig_mode_kmer_depth\tTotal_colored_kmer\tLCA_taxon_id\tLCA_name\tLCA_rank\tLCA_score")
     for contig in contigs:
-        print("%s\t%s\t%s\t%s\t%s" % (contig, contigs[contig].getLengthInKmer(),
-                                      contigs[contig].get_coverage_detph(), contigs[contig].LCA_id,
-                                      contigs[contig].LCA_name))
+        print("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (contig, contigs[contig].getLengthInKmer(),
+                                      contigs[contig].get_coverage_detph(), contigs[contig].coloredKmers, contigs[contig].LCA_id,
+                                      contigs[contig].LCA_name, contigs[contig].LCA_rank, contigs[contig].LCA_score))
 
 
 if __name__=="__main__":
@@ -258,30 +190,26 @@ if __name__=="__main__":
         print(__doc__)
     parser = OptionParser.OptionParser(sys.argv[1:])
     args = parser.getArguments()
+
     if sys.argv[1] == "prepare":
         if args['t'] and args['f'] and args['n']:
-            prepareData(args)
-    if sys.argv[1] == "lca" and args['d'] and args['c']:
-        if args['r'] != None and not args['r'] in possible_taxonomic_level:
-            sys.stderr.write("Bad taxonomic level. Possible choices are:\n %s\n" % possible_taxonomic_level)
-            sys.exit(0)
+            prepare_data(args)
+
+    if sys.argv[1] == "lca" and args['d'] and args['t']:
         sys.stderr.write("Loading tree of life\n")
-        tree = prepareTreeOfLife()
+        tree = prepare_tree_of_life(args)
         sys.stderr.write("Tree of life loaded!\n")
         sys.stderr.write("Loading genome to taxon converter\n")
-        converter = prepareGenomeToTaxonConverter()
-        sys.stderr.write("Genome to taaxon converter loaded\n")
+        converter = prepare_genome_taxon_converter()
+        sys.stderr.write("Genome to taxon converter loaded\n")
         sys.stderr.write("Searching best matches for contigs\n")
-        contigs = findContigsID(args)
+        contigs = find_contigs_ID(args)
         sys.stderr.write("Searching is done!\n")
         sys.stderr.write("Searching LCA\n")
-        contigs = executeLCA(contigs, tree, converter, args["v"])
-        if "r" in args and args['r'] != None:
-            out_by_max_depth(contigs, tree, args["r"])
-        else:
+        contigs = execute_LCA(contigs, tree, converter, args)
+        if args['o'] == "historical":
+            out_with_history(contigs)
+        if args['o'] == 'lca':
             out_by_contig(contigs)
 
-
-
-	
 

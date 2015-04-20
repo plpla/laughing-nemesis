@@ -7,6 +7,9 @@ class ContigIdentificationObject(object):
         self.sequenceLenghtInKmer = SequenceLengthInKmer
         self.matchesInContig = MatchesInContig
         self.PLvalue = 0
+        self.taxon_rank = ""
+        self.taxon_name = ""
+        self.taxon_id = ""
 
     def setSequenceName(self, name):
         self.sequenceName = name
