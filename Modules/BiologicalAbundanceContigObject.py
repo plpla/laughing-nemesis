@@ -270,10 +270,34 @@ class BiologicalAbundanceContigObject(ContigObject):
         """"
         requires possible_taxonomic_level to be ordered. Does not set LCA_name
         """
+        if not self.is_history_set():
+            self.LCA_id = "unknown"
+            self.LCA_score = 0
+            self.LCA_name = "unknown"
+            return
+        detect = 0
         for level in possible_taxonomic_level:
             if self.history[level][1] >= threshold:
+                detect=1
                 self.LCA_id = self.history[level][0]
                 self.LCA_score = self.history[level][1]
+        if detect == 0:
+            i = len(possible_taxonomic_level)-1
+            level = possible_taxonomic_level[i]
+            score = self.history[level][1]
+            while i >= 0:
+                i = i-1
+                level = possible_taxonomic_level[i]
+                #sys.stderr.write("%s is current level %s\n" %(level, self.name))
+                if score == self.history[level][1]:
+                    i += 1
+                    level = possible_taxonomic_level[i]
+                    self.LCA_id = self.history[level][0]
+                    self.LCA_score = self.history[level][1]
+                    break
+                score = self.history[level][1]
+
+
 
 
 

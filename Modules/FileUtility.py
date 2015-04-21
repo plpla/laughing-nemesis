@@ -113,3 +113,13 @@ def readContigIdentificationFiles(files, biologicalAbundanceContigs):
                           " can not be read or do not correspond to the usual patern." + \
                           " It has been discarded"
                 warning(message)
+def read_fasta_file(fasta):
+    sequences = {}
+    name = ""
+    for line in open(fasta, 'r'):
+        if line[0] == ">":
+            name = line[1:].split()[0]
+            sequences[name] = ""
+        else:
+            sequences[name] += line
+    return sequences

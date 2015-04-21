@@ -68,6 +68,14 @@ def find_contigs_ID(args):
             continue
         else:
             contigs[contig].selectBestIdentifications(args['b'])
+    if args['c']:
+        sequences = read_fasta_file(args['c'])
+        subset = {}
+        sys.stderr.write("Before: %s" %len(contigs))
+        for seq in sequences:
+            subset[seq] = contigs[seq]
+        contigs = subset
+    sys.stderr.write("%s contigs to analyse" %len(contigs))
     return contigs
 
 """
