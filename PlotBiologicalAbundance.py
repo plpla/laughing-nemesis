@@ -85,7 +85,7 @@ def stacked_bar_plot_single_sample(data, show_value, output):
     plot = ppl.bar(ind, taxon_value, width, color='g')
     ppl.ylabel("Proportion")
     ppl.title("Taxonomic repartition")
-    locs, labels = mpl.xticks(ind+width/2., taxon_name)
+    locs, labels = ppl.xticks(ind+width/2., taxon_name)
     ppl.setp(labels, rotation=90)
     ppl.yticks(np.arange(0, max(taxon_value), max(taxon_value)/10))
     if mpl.__version__ >="1.3.1":

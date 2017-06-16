@@ -8,7 +8,7 @@ import sqlite3
 
 class Genomes_to_taxon():
     def __init__(self):
-        self._converter = sqlite3.connect('GenomesToTaxon.sqlite')
+        self._converter = sqlite3.connect('/rap/nne-790-ab/projects/pplante/Git_clone/laughing-nemesis/GenomesToTaxon.sqlite')
         self._cursor = self.converter.cursor()
 
     @property

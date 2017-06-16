@@ -92,7 +92,7 @@ def execute_LCA(contigs, tree, converter, args):
     """
     lca = -1
     num_of_contigs = len(contigs)
-    win_size = num_of_contigs / 100
+    win_size = max(num_of_contigs / 100, 1)
     i = 0
     current = 0
     sys.stderr.write("\r%s %% contigs done" % current)

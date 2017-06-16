@@ -6,7 +6,7 @@ import sys
 allocation = "nne-790-ae"
 script_path = "/rap/nne-790-ab/projects/pplante/Git_clone/laughing-nemesis/FindLastCommonAncester.py"
 taxonomy_file = "/rap/nne-790-ab/projects/pplante/Taxonomy/TreeOfLife-Edges.tsv"
-outpath = "/lustre4/CHUdeQuebec/nne-790-ad/projects/FR-Virus/Evelyne/Nemesis/"
+outpath = "/rap/nne-790-ab/projects/pplante/FromageSteveLabrie/Nemesis"
 
 def create_new_sub_file(file_out, job_name):
     fo = open(file_out, 'w')
@@ -14,7 +14,7 @@ def create_new_sub_file(file_out, job_name):
     fo.write("#!/bin/bash\n#PBS -N "+job_name+"\n#PBS -o "+job_name+".stdout\n" +
             "#PBS -e "+job_name+".stderr\n#PBS -A "+allocation+"\n#PBS -l walltime=8:00:00\n" +
             '#PBS -l nodes=1:ppn=8\n#PBS -q default\ncd "${PBS_O_WORKDIR}"\n\n')
-    fo.write("module load apps/python/2.7.5\n\n")
+    #fo.write("module load apps/python/2.7.5\n\n")
     fo.close()
 
 def prepare_submissions_files(directory, prefix, job_name):
